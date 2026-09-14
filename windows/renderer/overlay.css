@@ -1,0 +1,251 @@
+/* Intervence: celoobrazovkový klid. Bílá, jeden dýchající kruh. */
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* jemný chladný nádech světla, ne plochá bílá */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 8%, #ffffff 0%, #f9fbff 46%, #eef2fb 100%);
+  z-index: -1;
+}
+
+.overlay {
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  place-items: center;
+  padding: 48px;
+}
+
+.phase {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+}
+.overlay {
+  display: grid;
+}
+.phase.is-active {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* ---------- Krok 1: dýchání ---------- */
+.orbit {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  display: grid;
+  place-items: center;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.ring-track {
+  fill: none;
+  stroke: var(--blue-wash);
+  stroke-width: 3;
+}
+.ring-progress {
+  fill: none;
+  stroke: var(--blue-soft);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 917;
+  stroke-dashoffset: 917; /* nastaví JS podle délky cooldownu */
+}
+
+.orb {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, #ffffff 0%, #c9d5ff 34%, #7f9bff 72%, #5570f4 100%);
+  box-shadow:
+    0 24px 70px var(--blue-glow),
+    inset 0 2px 10px rgba(255, 255, 255, 0.85);
+  transform: scale(0.82);
+  transition: transform 4000ms var(--breath-ease);
+}
+
+.breath-label {
+  margin: 44px 0 0;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.breath-sub {
+  margin: 12px 0 0;
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+.breath-sub b {
+  font-weight: 600;
+  color: var(--blue-strong);
+}
+
+/* ---------- Krok 2: proč ---------- */
+.phase-reason {
+  width: min(620px, 92vw);
+}
+.mini-orb {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, #ffffff 0%, #c9d5ff 36%, #7f9bff 74%, #5570f4 100%);
+  box-shadow: 0 12px 34px var(--blue-glow);
+  margin-bottom: 30px;
+}
+.question {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.question span {
+  color: var(--blue-strong);
+}
+.question-sub {
+  margin: 14px 0 30px;
+  font-size: 17px;
+  color: var(--ink-soft);
+}
+
+.field {
+  width: 100%;
+}
+#reasonInput {
+  width: 100%;
+  resize: none;
+  padding: 20px 22px;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  outline: none;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+#reasonInput::placeholder {
+  color: var(--ink-faint);
+}
+#reasonInput:focus {
+  border-color: var(--blue-soft);
+  box-shadow: 0 0 0 4px var(--blue-wash);
+}
+.field-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  padding-right: 6px;
+  min-height: 20px;
+}
+.counter {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-faint);
+  transition: color 0.2s var(--ease);
+}
+.counter.is-ok {
+  color: var(--blue-strong);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 34px;
+}
+.btn {
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 600;
+  transition: transform 0.15s var(--ease), background 0.2s var(--ease),
+    color 0.2s var(--ease), box-shadow 0.2s var(--ease), opacity 0.2s var(--ease);
+}
+.btn-primary {
+  padding: 17px 40px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--blue) 0%, var(--blue-strong) 100%);
+  box-shadow: 0 14px 30px var(--blue-glow);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 38px var(--blue-glow);
+}
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn-ghost {
+  padding: 12px 22px;
+  color: var(--ink-soft);
+  background: transparent;
+}
+.btn-ghost:hover {
+  color: var(--ink);
+}
+
+/* ---------- Krok 3: hotovo ---------- */
+.phase-done .done-mark {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--blue-wash);
+  display: grid;
+  place-items: center;
+  margin-bottom: 22px;
+}
+.done-mark svg {
+  width: 52px;
+  height: 52px;
+}
+.done-check {
+  fill: none;
+  stroke: var(--blue-strong);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: draw 0.5s var(--ease) forwards;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.done-text {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ink);
+}

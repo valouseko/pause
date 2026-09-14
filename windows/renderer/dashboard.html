@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mezera</title>
+    <link rel="stylesheet" href="base.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-orb"></div>
+          <div class="brand-copy">
+            <div class="brand-name">Mezera</div>
+            <div class="brand-tag">vteřina na rozmyšlenou</div>
+          </div>
+        </div>
+        <label class="master" title="Zapnout nebo pozastavit hlídání">
+          <span class="master-text" id="masterText">Hlídání zapnuto</span>
+          <span class="switch">
+            <input type="checkbox" id="masterToggle" checked />
+            <span class="slider"></span>
+          </span>
+        </label>
+      </header>
+
+      <nav class="tabs">
+        <button class="tab is-active" data-tab="apps">Appky</button>
+        <button class="tab" data-tab="stats">Statistiky</button>
+      </nav>
+
+      <main class="content">
+        <!-- APPKY -->
+        <section class="tabpane is-active" id="tab-apps">
+          <p class="lead">
+            Vyber appky a weby, u kterých se tě Mezera zeptá, proč tam jdeš.
+            Weby chytá podle názvu okna v prohlížeči, appky podle názvu procesu.
+          </p>
+
+          <div class="list" id="targetList"></div>
+
+          <div class="add-row">
+            <button class="btn-soft" id="addBtn">+ Přidat appku nebo web</button>
+          </div>
+
+          <div class="panel" id="addPanel" hidden></div>
+
+          <div class="settings">
+            <div class="setting-row">
+              <div class="setting-copy">
+                <div class="setting-title">Spouštět s Windows</div>
+                <div class="setting-sub">Mezera naběhne na pozadí po přihlášení.</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="autostartToggle" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- STATISTIKY -->
+        <section class="tabpane" id="tab-stats">
+          <div class="summary" id="statsSummary"></div>
+          <h2 class="block-title">Kam nejčastěji chodíš</h2>
+          <div class="bars" id="statsBars"></div>
+          <div class="timeline-head">
+            <h2 class="block-title">Poslední důvody</h2>
+            <button class="btn-quiet" id="clearStats">Vymazat statistiky</button>
+          </div>
+          <div class="timeline" id="statsTimeline"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+  </body>
+</html>

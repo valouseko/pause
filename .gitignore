@@ -1,0 +1,24 @@
+# Node / Electron
+node_modules/
+dist/
+out/
+*.log
+npm-debug.log*
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/captures/
+*.iml
+.DS_Store
+
+# Lokalni data appky (kdyby nekdo omylem commitnul)
+config.json
+stats.json
+
+# Nastroje / cache
+.impeccable/
+.playwright-mcp/

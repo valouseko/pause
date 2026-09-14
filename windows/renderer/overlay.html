@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mezera</title>
+    <link rel="stylesheet" href="base.css" />
+    <link rel="stylesheet" href="overlay.css" />
+  </head>
+  <body>
+    <div class="overlay">
+      <!-- Krok 1: nádech -->
+      <section class="phase phase-breath is-active" id="phaseBreath">
+        <div class="orbit">
+          <svg class="ring" viewBox="0 0 320 320" aria-hidden="true">
+            <circle class="ring-track" cx="160" cy="160" r="146" />
+            <circle class="ring-progress" cx="160" cy="160" r="146" />
+          </svg>
+          <div class="orb" id="orb"></div>
+        </div>
+        <p class="breath-label" id="breathLabel">Nadechni se</p>
+        <p class="breath-sub">
+          Dej si vteřinu, než otevřeš <b id="appNameBreath">appku</b>.
+        </p>
+      </section>
+
+      <!-- Krok 2: proč -->
+      <section class="phase phase-reason" id="phaseReason">
+        <div class="mini-orb"></div>
+        <h1 class="question">Proč jdeš do <span id="appNameQ">appky</span>?</h1>
+        <p class="question-sub">Napiš to popravdě. Uvidíš to pak ve statistikách.</p>
+        <div class="field">
+          <textarea
+            id="reasonInput"
+            rows="3"
+            placeholder="Napiš důvod, klidně jednou větou..."
+            spellcheck="false"
+          ></textarea>
+          <div class="field-foot">
+            <span class="counter" id="counter">0 / 20</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="continueBtn" disabled>
+            Pokračovat do <span id="appNameBtn">appky</span>
+          </button>
+          <button class="btn btn-ghost" id="abandonBtn">Rozmyslel jsem si to</button>
+        </div>
+      </section>
+
+      <!-- Krok 3: hotovo -->
+      <section class="phase phase-done" id="phaseDone">
+        <div class="done-mark">
+          <svg viewBox="0 0 52 52" aria-hidden="true">
+            <path class="done-check" d="M14 27 L23 36 L39 18" />
+          </svg>
+        </div>
+        <p class="done-text" id="doneText">Jdi s rozmyslem.</p>
+      </section>
+    </div>
+
+    <script src="overlay.js"></script>
+  </body>
+</html>
