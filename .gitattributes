@@ -1,0 +1,15 @@
+# Konce radku: vsechen text jako LF v repu (kvuli Linux CI a gradlew).
+* text=auto eol=lf
+
+# Windows skripty nechame CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.vbs text eol=crlf
+
+# Binarky se nesahaji.
+*.jar binary
+*.png binary
+*.ico binary
+*.ttf binary
+*.woff2 binary
+*.apk binary
