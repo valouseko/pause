@@ -1,21 +1,34 @@
-# Mezera
+# Pause
 
 Appka, co ti dá vteřinu na rozmyšlenou, než skočíš do rozptylující aplikace. Inspirováno OneSec.
 
-Když otevřeš appku (nebo web), na kterou si Mezeru nastavíš, překryje ji klidná obrazovka:
+Když otevřeš appku (nebo web), na kterou si Pause nastavíš, překryje ji klidná obrazovka:
 
 1. **Nádech / výdech** - dýchací animace na pár vteřin (cooldown, nedá se přeskočit).
-2. **Proč tam jdeš?** - musíš slovy napsat důvod (min. 20 znaků).
+2. **Proč tam jdeš?** - musíš slovy napsat důvod (min. počet znaků).
 3. **Pokračuj, nebo si to rozmysli.** Každý průchod se zaloguje.
-4. **Statistiky** - kolikrát jsi kam šel a s jakým důvodem.
+4. **Statistiky** - kolikrát tě zastavila, odhad ušetřeného času, důvody.
 
-Funguje **na Windows i na Androidu**, napříč libovolnými appkami/weby, které si nastavíš (YouTube, Instagram, Messenger, Facebook, WhatsApp, cokoliv).
+Funguje **na Windows i na Androidu**, napříč libovolnými appkami/weby. Tmavý OneSec vzhled.
+
+## Odkazy
+
+- **Landing + stažení:** https://valouseko.github.io/pause
+- **APK napřímo:** https://github.com/valouseko/pause/releases/latest/download/Pause.apk
+- **Repo:** https://github.com/valouseko/pause (veřejné)
 
 ## Struktura
 
-- `windows/` - desktopová appka (Electron). Dá se rovnou spustit a vyzkoušet.
-- `android/` - nativní appka (Kotlin + Jetpack Compose). APK se buildí v cloudu přes GitHub Actions.
-- `docs/` - poznámky, rozhodnutí, jak buildit.
+- `windows/` - desktopová appka (Electron). Dá se rovnou spustit.
+- `android/` - nativní appka (Kotlin + Jetpack Compose). APK se buildí v cloudu (GitHub Actions).
+- `docs/` - landing page (GitHub Pages) + poznámky k buildu.
+
+## Android - stažení a auto-update
+
+APK stáhneš z landing page nebo z Releases. Po instalaci appka **sama hlídá aktualizace**:
+při otevření zkontroluje `version.json` v Releases a nabídne stažení + instalaci nové verze.
+Protože je APK podepsané **stálým klíčem**, nová verze se nainstaluje přes starou -
+**oprávnění i statistiky zůstávají**. Detaily v `docs/android-build.md`.
 
 ## Windows - rychlý start
 
@@ -25,21 +38,9 @@ npm install
 npm start
 ```
 
-Appka se schová do tray (lišta u hodin). Otevřením ikony se dostaneš na nastavení a statistiky.
-Detaily v `windows/README.md`.
-
-## Android - jak získat APK
-
-Zdrojáky jsou v `android/`. APK se nevytváří lokálně (chybí Android SDK), ale v cloudu:
-push do GitHubu → GitHub Actions zbuildí APK → objeví se v Releases.
-
-- **Stáhnout APK:** https://github.com/valouseko/mezera/releases/tag/latest → soubor `Mezera.apk`
-  (repo je privátní, takže musíš být přihlášený; nejjednodušší stáhnout na PC a přehodit do telefonu).
-- Po instalaci v appce zapni **Přístupnost** a **Překrytí ostatních appek**.
-
-Detaily v `docs/android-build.md`.
+Běží v tray. Detaily v `windows/README.md`.
 
 ## Design
 
-Čistá bílá, klidná modrá, font Inter, zaoblené hrany, hodně prostoru, jemné animace.
-Žádný balast. Cíl je klid, ne dashboard.
+Tmavý OneSec styl: hluboké pozadí, jedna modrá/indigo, font Inter, zaoblené hrany,
+dýchající kruh jako hrdina, hero souhrn s velkými čísly. Klid, žádný balast.
