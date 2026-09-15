@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +32,8 @@ import cz.honestlead.mezera.ui.theme.BlueSoft
 import cz.honestlead.mezera.ui.theme.BlueStrong
 import cz.honestlead.mezera.ui.theme.BlueWash
 import cz.honestlead.mezera.ui.theme.BgDeep
+import cz.honestlead.mezera.ui.theme.Hero1
+import cz.honestlead.mezera.ui.theme.Hero2
 import cz.honestlead.mezera.ui.theme.Ink
 import cz.honestlead.mezera.ui.theme.InkFaint
 import cz.honestlead.mezera.ui.theme.InkSoft
@@ -50,13 +54,14 @@ fun LazyListScope.statsSection(
     val bars = counts.entries.sortedByDescending { it.value }
     val maxCount = bars.firstOrNull()?.value ?: 1
 
+    val savedMin = abandoned * 15
     item {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(total.toString(), "zásahů celkem", Modifier.weight(1f))
-            StatTile(abandoned.toString(), "rozmyslel sis to", Modifier.weight(1f))
-        }
+        HeroSummary(total = total, saved = fmtSaved(savedMin))
         Spacer(Modifier.height(12.dp))
-        StatTile(top, "kam nejčastěji", Modifier.fillMaxWidth())
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatTile(abandoned.toString(), "rozmyslel sis to", Modifier.weight(1f))
+            StatTile(top, "kam nejčastěji", Modifier.weight(1f))
+        }
         Spacer(Modifier.height(28.dp))
     }
 
@@ -121,6 +126,35 @@ private fun StatTile(value: String, label: String, modifier: Modifier = Modifier
         Spacer(Modifier.height(4.dp))
         Text(label, color = InkFaint, fontSize = 13.sp)
     }
+}
+
+@Composable
+private fun HeroSummary(total: Int, saved: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(28.dp))
+            .background(Brush.linearGradient(listOf(Hero1, Hero2)))
+            .padding(horizontal = 26.dp, vertical = 26.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(total.toString(), color = Color.White, fontSize = 38.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+            Text("zásahů celkem", color = Color.White.copy(alpha = 0.85f), fontSize = 14.sp)
+        }
+        Column(modifier = Modifier.weight(1.2f)) {
+            Text(saved, color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+            Text("ušetřeno (odhad)", color = Color.White.copy(alpha = 0.85f), fontSize = 14.sp)
+        }
+    }
+}
+
+private fun fmtSaved(minutes: Int): String {
+    if (minutes >= 60) {
+        val h = minutes / 60
+        val m = minutes % 60
+        return if (m > 0) "$h h $m min" else "$h h"
+    }
+    return "$minutes min"
 }
 
 @Composable

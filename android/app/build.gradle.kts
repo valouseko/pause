@@ -4,16 +4,33 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// Verze z CI (aby rostla po každém buildu), lokálně fallback.
+val ciVersionCode = (System.getenv("VERSION_CODE") ?: "1").toInt()
+val ciVersionName = System.getenv("VERSION_NAME") ?: "0.1.0"
+
 android {
     namespace = "cz.honestlead.mezera"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "cz.honestlead.mezera"
+        applicationId = "cz.honestlead.pause"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = ciVersionCode
+        versionName = ciVersionName
+    }
+
+    signingConfigs {
+        create("release") {
+            val storeFilePath = System.getenv("STORE_FILE")
+            if (storeFilePath != null) {
+                storeFile = file(storeFilePath)
+                storePassword = System.getenv("STORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+                storeType = "PKCS12"
+            }
+        }
     }
 
     buildTypes {
@@ -23,6 +40,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Podepsat stálým klíčem, jen když je k dispozici (CI). Jinak fallback debug.
+            signingConfig = if (System.getenv("STORE_FILE") != null) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 
@@ -35,6 +58,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

@@ -50,6 +50,7 @@ import cz.honestlead.mezera.ui.theme.Ink
 import cz.honestlead.mezera.ui.theme.InkFaint
 import cz.honestlead.mezera.ui.theme.InkSoft
 import cz.honestlead.mezera.ui.theme.LineStrong
+import cz.honestlead.mezera.ui.theme.Surface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -86,8 +87,10 @@ fun LazyListScope.appsSection(
                 focusedBorderColor = BlueSoft,
                 unfocusedBorderColor = LineStrong,
                 cursorColor = Blue,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                focusedTextColor = Ink,
+                unfocusedTextColor = Ink,
+                focusedContainerColor = Surface,
+                unfocusedContainerColor = Surface
             )
         )
         Spacer(Modifier.height(16.dp))
@@ -158,7 +161,7 @@ private fun AppRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(shape)
-                .background(Color.White)
+                .background(Surface)
                 .clickable(enabled = isTarget) { onEdit() }
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -210,7 +213,7 @@ private fun AppRow(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(Surface)
                     .padding(start = 70.dp)
             ) {
                 Box(
@@ -250,8 +253,8 @@ fun EditTargetDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Zrušit", color = InkSoft) }
         },
-        title = { Text(target.label, fontWeight = FontWeight.Bold) },
-        containerColor = Color.White,
+        title = { Text(target.label, fontWeight = FontWeight.Bold, color = Ink) },
+        containerColor = Surface,
         text = {
             Column {
                 StepperRow("Nádech (s)", cooldown, 0, 120, 1) { cooldown = it }

@@ -4,6 +4,11 @@
     <!-- Aby appka mohla překrýt jinou appku (a spustit intervenci z pozadí). -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
+    <!-- Stahování a instalace aktualizací + upozornění na novou verzi. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <!-- Umožní vypsat spustitelné appky pro výběr cílů (bez citlivého QUERY_ALL_PACKAGES). -->
     <queries>
         <intent>
@@ -40,6 +45,16 @@
             android:noHistory="true"
             android:taskAffinity="cz.honestlead.mezera.intervention"
             android:theme="@style/Theme.Mezera.Fullscreen" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <service
             android:name=".service.AppWatchService"

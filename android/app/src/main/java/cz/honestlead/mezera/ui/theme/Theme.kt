@@ -1,11 +1,11 @@
 package cz.honestlead.mezera.ui.theme
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val MezeraColors = lightColorScheme(
+private val PauseColors = darkColorScheme(
     primary = Blue,
     onPrimary = Color.White,
     primaryContainer = BlueWash,
@@ -20,13 +20,13 @@ private val MezeraColors = lightColorScheme(
     onSurfaceVariant = InkSoft,
     outline = LineStrong,
     outlineVariant = Line,
-    error = Color(0xFFC2536B)
+    error = Color(0xFFFF6B81)
 )
 
 @Composable
 fun MezeraTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = MezeraColors,
+        colorScheme = PauseColors,
         typography = AppTypography,
         content = content
     )

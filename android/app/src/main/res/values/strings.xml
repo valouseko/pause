@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mezera</string>
-    <string name="service_label">Mezera - hlídání appek</string>
-    <string name="accessibility_desc">Mezera potřebuje vidět, kterou appku právě otevíráš, aby ti u vybraných appek dala vteřinu na rozmyšlenou. Nečte obsah obrazovky ani nic neposílá ven.</string>
+    <string name="app_name">Pause</string>
+    <string name="service_label">Pause - hlídání appek</string>
+    <string name="accessibility_desc">Pause potřebuje vidět, kterou appku právě otevíráš, aby ti u vybraných appek dala vteřinu na rozmyšlenou. Nečte obsah obrazovky ani nic neposílá ven.</string>
 </resources>

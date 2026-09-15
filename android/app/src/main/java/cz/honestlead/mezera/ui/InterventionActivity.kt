@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cz.honestlead.mezera.data.InterventionEvent
 import cz.honestlead.mezera.data.Store
+import cz.honestlead.mezera.ui.theme.Bg
 import cz.honestlead.mezera.ui.theme.Blue
 import cz.honestlead.mezera.ui.theme.BlueSoft
 import cz.honestlead.mezera.ui.theme.BlueStrong
@@ -64,6 +65,7 @@ import cz.honestlead.mezera.ui.theme.InkFaint
 import cz.honestlead.mezera.ui.theme.InkSoft
 import cz.honestlead.mezera.ui.theme.LineStrong
 import cz.honestlead.mezera.ui.theme.MezeraTheme
+import cz.honestlead.mezera.ui.theme.Surface
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -164,7 +166,7 @@ private fun InterventionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Bg)
             .padding(28.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -328,8 +330,10 @@ private fun ReasonContent(
                 focusedBorderColor = BlueSoft,
                 unfocusedBorderColor = LineStrong,
                 cursorColor = Blue,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                focusedTextColor = Ink,
+                unfocusedTextColor = Ink,
+                focusedContainerColor = Surface,
+                unfocusedContainerColor = Surface
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default)
         )
