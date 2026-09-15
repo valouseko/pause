@@ -310,6 +310,15 @@ async function loadStats() {
   renderTimeline(events);
 }
 
+function fmtSaved(minutes) {
+  if (minutes >= 60) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m ? `${h} h ${m} min` : `${h} h`;
+  }
+  return `${minutes} min`;
+}
+
 function renderSummary(events) {
   const total = events.length;
   const abandoned = events.filter((e) => e.outcome === 'abandoned').length;
@@ -319,16 +328,36 @@ function renderSummary(events) {
   let topN = 0;
   for (const [k, v] of Object.entries(counts)) if (v > topN) (top = k), (topN = v);
 
+  // Odhad ušetřeného času: každé "rozmyslel jsem si to" = cca 15 min neztraceného scrollování.
+  const savedMin = abandoned * 15;
+
   const box = $('statsSummary');
+  box.className = 'statsflow';
   box.innerHTML = '';
+
+  const heroItem = (num, label) =>
+    h('div', { class: 'hero-item' }, [
+      h('div', { class: 'hero-n', text: String(num) }),
+      h('div', { class: 'hero-l', text: label })
+    ]);
+  box.appendChild(
+    h('div', { class: 'hero' }, [
+      heroItem(total, 'zásahů celkem'),
+      heroItem(fmtSaved(savedMin), 'ušetřeno (odhad)')
+    ])
+  );
+
   const tile = (num, label) =>
     h('div', { class: 'stat' }, [
       h('div', { class: 'stat-num', text: String(num) }),
       h('div', { class: 'stat-label', text: label })
     ]);
-  box.appendChild(tile(total, 'zásahů celkem'));
-  box.appendChild(tile(abandoned, 'rozmyslel sis to'));
-  box.appendChild(tile(top, 'kam nejčastěji'));
+  box.appendChild(
+    h('div', { class: 'summary two' }, [
+      tile(abandoned, 'rozmyslel sis to'),
+      tile(top, 'kam nejčastěji')
+    ])
+  );
 }
 
 function renderBars(events) {

@@ -4,16 +4,16 @@ html,
 body {
   height: 100%;
   overflow: hidden;
-  background: var(--surface);
+  background: var(--bg);
 }
 
-/* jemný chladný nádech světla, ne plochá bílá */
+/* tmavý klid s jemným modrým nádechem shora */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(120% 90% at 50% 8%, #ffffff 0%, #f9fbff 46%, #eef2fb 100%);
+    radial-gradient(130% 100% at 50% -10%, #232a3d 0%, #141926 42%, #0b0e15 100%);
   z-index: -1;
 }
 
@@ -194,7 +194,7 @@ body::before {
 .btn-primary {
   padding: 17px 40px;
   color: #fff;
-  background: linear-gradient(180deg, var(--blue) 0%, var(--blue-strong) 100%);
+  background: linear-gradient(180deg, var(--blue) 0%, var(--blue-soft) 100%);
   box-shadow: 0 14px 30px var(--blue-glow);
 }
 .btn-primary:hover:not(:disabled) {

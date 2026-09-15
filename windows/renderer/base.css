@@ -22,30 +22,36 @@
 }
 
 :root {
-  --bg: #F6F8FC;
-  --bg-deep: #EEF1F8;
-  --surface: #FFFFFF;
+  /* Tmavý OneSec styl */
+  --bg: #0E1117;
+  --bg-deep: #191E2A;
+  --surface: #161B26;
+  --surface-2: rgba(255, 255, 255, 0.05);
 
-  --ink: #1B2233;
-  --ink-soft: #5A6376;
-  --ink-faint: #97A0B4;
+  --ink: #F1F4FA;
+  --ink-soft: #A6AEC0;
+  --ink-faint: #6E7789;
 
-  --line: #E9ECF3;
-  --line-strong: #DCE1EC;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
 
-  --blue: #4F6BF6;
-  --blue-strong: #3A55E6;
-  --blue-soft: #8AA0FF;
-  --blue-wash: #EEF2FF;
-  --blue-glow: rgba(79, 107, 246, 0.28);
+  --blue: #6E8BFF;
+  --blue-strong: #A9B8FF;
+  --blue-soft: #5566D6;
+  --blue-wash: rgba(110, 139, 255, 0.16);
+  --blue-glow: rgba(110, 139, 255, 0.5);
+
+  /* hero gradient (souhrn) */
+  --hero-1: #6D7BFF;
+  --hero-2: #9A7BFF;
 
   --radius-xl: 30px;
   --radius-lg: 22px;
   --radius: 16px;
   --radius-sm: 11px;
 
-  --shadow-soft: 0 14px 44px rgba(29, 45, 90, 0.09);
-  --shadow-lift: 0 20px 60px rgba(29, 45, 90, 0.14);
+  --shadow-soft: 0 14px 44px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 20px 60px rgba(0, 0, 0, 0.5);
 
   --font: 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif;
 

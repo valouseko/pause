@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, shell, screen } = require('electron');
 const path = require('path');
 const { Store } = require('./store');
 const { getActiveWindow, SessionTracker } = require('./detector');
@@ -114,14 +114,37 @@ function showDashboard() {
   });
 }
 
+// Spočítá umístění overlaye přesně přes okno cílové appky (správný monitor,
+// stejný rozměr). get-windows vrací fyzické pixely, Electron chce DIP -> převod.
+function overlayPlacement(bounds) {
+  try {
+    if (bounds && bounds.width > 1 && bounds.height > 1) {
+      const rect = {
+        x: Math.round(bounds.x),
+        y: Math.round(bounds.y),
+        width: Math.round(bounds.width),
+        height: Math.round(bounds.height)
+      };
+      const dip = screen.screenToDipRect(null, rect);
+      return {
+        x: Math.round(dip.x),
+        y: Math.round(dip.y),
+        width: Math.max(200, Math.round(dip.width)),
+        height: Math.max(160, Math.round(dip.height))
+      };
+    }
+  } catch (e) {}
+  return null;
+}
+
 // ------- Overlay (intervence) -------
-function openOverlay(target) {
+function openOverlay(target, bounds) {
   if (overlayWin) return; // už jedna běží
   tracker.suspend();
   currentIntervention = { target, startedAt: Date.now() };
 
-  overlayWin = new BrowserWindow({
-    fullscreen: true,
+  const place = overlayPlacement(bounds);
+  const opts = {
     frame: false,
     alwaysOnTop: true,
     skipTaskbar: true,
@@ -129,15 +152,32 @@ function openOverlay(target) {
     movable: false,
     minimizable: false,
     maximizable: false,
-    fullscreenable: true,
-    backgroundColor: '#FFFFFF',
+    hasShadow: false,
+    backgroundColor: '#0E1220',
     show: false,
     webPreferences: {
       preload: PRELOAD,
       contextIsolation: true,
       nodeIntegration: false
     }
-  });
+  };
+  if (place) {
+    opts.x = place.x;
+    opts.y = place.y;
+    opts.width = place.width;
+    opts.height = place.height;
+  }
+
+  overlayWin = new BrowserWindow(opts);
+  // Když se okno cíle nepodařilo zaměřit, aspoň překryjeme displej pod kurzorem.
+  if (!place) {
+    try {
+      const d = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+      overlayWin.setBounds(d.workArea);
+    } catch (e) {
+      overlayWin.setFullScreen(true);
+    }
+  }
   overlayWin.setAlwaysOnTop(true, 'screen-saver');
   overlayWin.setVisibleOnAllWorkspaces(true);
   overlayWin.loadFile(path.join(RENDERER, 'overlay.html'));
@@ -170,7 +210,7 @@ async function tick() {
     const win = await getActiveWindow();
     const res = tracker.evaluate(win, cfg.targets, Date.now(), isSelfWindow(win));
     if (res.intervene && res.target) {
-      openOverlay(res.target);
+      openOverlay(res.target, win && win.bounds);
     }
   } catch (e) {
     // Detekce může občas selhat (zamčená obrazovka apod.), to nevadí.

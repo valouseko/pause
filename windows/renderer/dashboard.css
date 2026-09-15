@@ -7,7 +7,7 @@ body {
 }
 body {
   background:
-    radial-gradient(120% 60% at 100% 0%, #ffffff 0%, var(--bg) 55%);
+    radial-gradient(120% 70% at 100% -10%, #1d2434 0%, #0e1117 55%);
 }
 
 .app {
@@ -299,7 +299,7 @@ body {
   border-radius: 999px;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(180deg, var(--blue) 0%, var(--blue-strong) 100%);
+  background: linear-gradient(180deg, var(--blue) 0%, var(--blue-soft) 100%);
   box-shadow: 0 10px 22px var(--blue-glow);
 }
 .btn-fill:hover {
@@ -370,11 +370,36 @@ body {
 }
 
 /* ---------- Statistiky ---------- */
+.hero {
+  border-radius: var(--radius-xl);
+  padding: 28px 30px;
+  margin-bottom: 16px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--hero-1) 0%, var(--hero-2) 100%);
+  box-shadow: 0 20px 55px rgba(110, 123, 255, 0.35);
+  display: flex;
+  gap: 52px;
+}
+.hero-n {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.hero-l {
+  font-size: 14px;
+  opacity: 0.86;
+  margin-top: 8px;
+}
+
 .summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 34px;
+}
+.summary.two {
+  grid-template-columns: repeat(2, 1fr);
 }
 .stat {
   padding: 22px;
