@@ -31,11 +31,11 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK packages
-        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Install Android SDK packages
+        run: |
+          SDKMGR="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMGR" --licenses >/dev/null 2>&1 || true
+          "$SDKMGR" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Decode signing keystore
         run: echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/pause-release.p12"
