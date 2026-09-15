@@ -64,7 +64,7 @@ object Updater {
         }
         try {
             conn.inputStream.use { input ->
-                out.outputStream.use { output -> input.copyTo(output, 64 * 1024) }
+                out.outputStream().use { output -> input.copyTo(output, 64 * 1024) }
             }
         } finally {
             conn.disconnect()
