@@ -31,7 +31,12 @@ Detaily v `windows/README.md`.
 ## Android - jak získat APK
 
 Zdrojáky jsou v `android/`. APK se nevytváří lokálně (chybí Android SDK), ale v cloudu:
-push do GitHubu → GitHub Actions zbuildí `app-debug.apk` → stáhneš z Releases přímo do telefonu.
+push do GitHubu → GitHub Actions zbuildí APK → objeví se v Releases.
+
+- **Stáhnout APK:** https://github.com/valouseko/mezera/releases/tag/latest → soubor `Mezera.apk`
+  (repo je privátní, takže musíš být přihlášený; nejjednodušší stáhnout na PC a přehodit do telefonu).
+- Po instalaci v appce zapni **Přístupnost** a **Překrytí ostatních appek**.
+
 Detaily v `docs/android-build.md`.
 
 ## Design
