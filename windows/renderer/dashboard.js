@@ -367,7 +367,7 @@ function renderBars(events) {
   for (const e of events) counts[e.label] = (counts[e.label] || 0) + 1;
   const rows = Object.entries(counts).sort((a, b) => b[1] - a[1]);
   if (!rows.length) {
-    box.appendChild(h('div', { class: 'empty', text: 'Zatím žádná data. Až tě Mezera zastaví, uvidíš to tu.' }));
+    box.appendChild(h('div', { class: 'empty', text: 'Zatím žádná data. Až tě Pause zastaví, uvidíš to tu.' }));
     return;
   }
   const max = rows[0][1];

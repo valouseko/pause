@@ -46,7 +46,7 @@ function trayImage() {
 function buildTrayMenu() {
   const cfg = store.getConfig();
   return Menu.buildFromTemplate([
-    { label: 'Otevřít Mezeru', click: () => showDashboard() },
+    { label: 'Otevřít Pause', click: () => showDashboard() },
     { type: 'separator' },
     {
       label: cfg.enabled ? 'Pozastavit hlídání' : 'Zapnout hlídání',
@@ -66,7 +66,7 @@ function buildTrayMenu() {
 function refreshTray() {
   if (!tray) return;
   const cfg = store.getConfig();
-  tray.setToolTip(cfg.enabled ? 'Mezera - hlídá' : 'Mezera - pozastaveno');
+  tray.setToolTip(cfg.enabled ? 'Pause - hlídá' : 'Pause - pozastaveno');
   tray.setContextMenu(buildTrayMenu());
 }
 
@@ -91,7 +91,7 @@ function showDashboard() {
     minWidth: 860,
     minHeight: 620,
     backgroundColor: '#F7F8FB',
-    title: 'Mezera',
+    title: 'Pause',
     icon: path.join(ASSETS, 'icon.png'),
     autoHideMenuBar: true,
     webPreferences: {
