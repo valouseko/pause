@@ -1,0 +1,52 @@
+name: Collect feedback
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    env:
+      TOPIC: pause-fb-92be18075e331c16
+      REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Ensure label exists
+        run: gh label create feedback -R "$REPO" --color 5566D6 --description "Uzivatelsky feedback z appky Pause" 2>/dev/null || true
+
+      - name: Fetch feedback from ntfy and file as issues
+        run: |
+          set -e
+          # Posledni hodina (cron bezi kazdych 15 min -> prekryv, dedup nize).
+          curl -s --max-time 30 "https://ntfy.sh/${TOPIC}/json?poll=1&since=60m" > msgs.ndjson || true
+          count=0
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            ev=$(jq -r '.event // empty' <<<"$line" 2>/dev/null || echo "")
+            [ "$ev" = "message" ] || continue
+            nid=$(jq -r '.id // empty' <<<"$line")
+            msg=$(jq -r '.message // empty' <<<"$line")
+            [ -z "$msg" ] && continue
+            kind=$(jq -r '.kind // empty' <<<"$msg" 2>/dev/null || echo "")
+            [ "$kind" = "pause-feedback" ] || continue
+            # dedup podle ntfy id v tele issue
+            existing=$(gh issue list -R "$REPO" --state all --search "$nid in:body" --json number --jq 'length' 2>/dev/null || echo "0")
+            [ "$existing" = "0" ] || continue
+            text=$(jq -r '.text // ""' <<<"$msg")
+            ver=$(jq -r '.version // "?"' <<<"$msg")
+            vcode=$(jq -r '.versionCode // "?"' <<<"$msg")
+            dev=$(jq -r '.device // "?"' <<<"$msg")
+            andr=$(jq -r '.android // "?"' <<<"$msg")
+            title=$(printf '%s' "$text" | tr '\n' ' ' | cut -c1-70)
+            [ -z "$title" ] && title="(prazdny vzkaz)"
+            body=$(printf '%s\n\n---\nverze: %s (%s)\nzarizeni: %s (Android %s)\nntfy-id: %s\n' "$text" "$ver" "$vcode" "$dev" "$andr" "$nid")
+            gh issue create -R "$REPO" --title "Feedback: $title" --body "$body" --label feedback
+            count=$((count+1))
+          done < msgs.ndjson
+          echo "Zalozeno novych ticketu: $count"

@@ -54,6 +54,7 @@ import cz.honestlead.mezera.data.AppCatalog
 import cz.honestlead.mezera.data.AppInfo
 import cz.honestlead.mezera.data.Store
 import cz.honestlead.mezera.data.Target
+import cz.honestlead.mezera.feedback.Feedback
 import cz.honestlead.mezera.update.UpdateInfo
 import cz.honestlead.mezera.update.Updater
 import cz.honestlead.mezera.ui.theme.Blue
@@ -104,6 +105,7 @@ private fun AppRoot() {
     var updateBusy by remember { mutableStateOf(false) }
     var updateMsg by remember { mutableStateOf<String?>(null) }
     var updateProgress by remember { mutableFloatStateOf(0f) }
+    var showFeedback by remember { mutableStateOf(false) }
 
     val accessibilityOn = remember(refreshKey) { Perm.accessibilityEnabled(context) }
     val overlayOn = remember(refreshKey) { Perm.overlayGranted(context) }
@@ -227,6 +229,8 @@ private fun AppRoot() {
                 onCheck = { doCheckUpdate() },
                 onUpdate = { doUpdate() }
             )
+            Spacer(Modifier.height(12.dp))
+            FeedbackEntry(onClick = { showFeedback = true })
             Spacer(Modifier.height(22.dp))
         }
 
@@ -262,6 +266,13 @@ private fun AppRoot() {
                 targets = store.getTargets()
                 editing = null
             }
+        )
+    }
+
+    if (showFeedback) {
+        FeedbackDialog(
+            onDismiss = { showFeedback = false },
+            onSend = { text -> Feedback.send(text) }
         )
     }
 }
