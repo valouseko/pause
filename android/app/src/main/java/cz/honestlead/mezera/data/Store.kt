@@ -9,6 +9,28 @@ class Store private constructor(context: Context) {
     private val prefs = context.applicationContext
         .getSharedPreferences("mezera", Context.MODE_PRIVATE)
 
+    init {
+        migrateSessionGaps()
+    }
+
+    // Jednorázově zvedne staré krátké pauzy (45 s) na rozumnějších 5 minut,
+    // ať obrazovka nevyskakuje po každém krátkém odskoku.
+    private fun migrateSessionGaps() {
+        if (prefs.getBoolean("gapMigratedV2", false)) return
+        val targets = getTargets()
+        if (targets.isNotEmpty()) {
+            var changed = false
+            val updated = targets.map {
+                if (it.sessionGapSec < 120) {
+                    changed = true
+                    it.copy(sessionGapSec = 300)
+                } else it
+            }
+            if (changed) saveTargets(updated)
+        }
+        prefs.edit().putBoolean("gapMigratedV2", true).apply()
+    }
+
     var enabled: Boolean
         get() = prefs.getBoolean("enabled", true)
         set(v) {

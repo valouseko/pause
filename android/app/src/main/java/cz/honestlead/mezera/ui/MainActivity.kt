@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -101,6 +103,7 @@ private fun AppRoot() {
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     var updateBusy by remember { mutableStateOf(false) }
     var updateMsg by remember { mutableStateOf<String?>(null) }
+    var updateProgress by remember { mutableFloatStateOf(0f) }
 
     val accessibilityOn = remember(refreshKey) { Perm.accessibilityEnabled(context) }
     val overlayOn = remember(refreshKey) { Perm.overlayGranted(context) }
@@ -143,9 +146,10 @@ private fun AppRoot() {
         }
         scope.launch {
             updateBusy = true
+            updateProgress = 0f
             updateMsg = "Stahuji novou verzi..."
             try {
-                val file = Updater.downloadApk(context, info.apkUrl)
+                val file = Updater.downloadApk(context, info.apkUrl) { p -> updateProgress = p }
                 updateMsg = "Spouštím instalaci..."
                 Updater.installApk(context, file)
             } catch (e: Exception) {
@@ -218,6 +222,7 @@ private fun AppRoot() {
             UpdateCard(
                 info = updateInfo,
                 busy = updateBusy,
+                progress = updateProgress,
                 message = updateMsg,
                 onCheck = { doCheckUpdate() },
                 onUpdate = { doUpdate() }
@@ -391,85 +396,141 @@ private fun TabPill(text: String, active: Boolean, onClick: () -> Unit) {
 private fun UpdateCard(
     info: UpdateInfo?,
     busy: Boolean,
+    progress: Float,
     message: String?,
     onCheck: () -> Unit,
     onUpdate: () -> Unit
 ) {
-    if (info != null) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .card()
-                .padding(20.dp)
-        ) {
-            Text(
-                "Nová verze ${info.versionName}",
-                color = Ink,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                if (info.notes.isNotBlank()) info.notes
-                else "Aktualizace je připravená. Data i nastavení zůstanou.",
-                color = InkSoft,
-                fontSize = 14.sp
-            )
-            Spacer(Modifier.height(16.dp))
-            Box(
+    when {
+        busy -> {
+            Column(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(Blue)
-                    .clickable(enabled = !busy) { onUpdate() }
-                    .padding(horizontal = 22.dp, vertical = 12.dp)
+                    .fillMaxWidth()
+                    .card()
+                    .padding(20.dp)
             ) {
                 Text(
-                    if (busy) "Pracuji..." else "Stáhnout a nainstalovat",
-                    color = Color.White,
-                    fontSize = 15.sp,
+                    message ?: "Pracuji...",
+                    color = Ink,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
-            }
-            if (message != null) {
-                Spacer(Modifier.height(10.dp))
-                Text(message, color = InkFaint, fontSize = 13.sp)
+                Spacer(Modifier.height(14.dp))
+                if (progress > 0f) {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(30.dp)),
+                        color = Blue,
+                        trackColor = BgDeep
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text("${(progress * 100).toInt()} %", color = InkSoft, fontSize = 13.sp)
+                } else {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(30.dp)),
+                        color = Blue,
+                        trackColor = BgDeep
+                    )
+                }
             }
         }
-    } else {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .card()
-                .padding(horizontal = 18.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    "Verze ${Updater.currentVersionName()}",
-                    color = Ink,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    message ?: "Aktualizace se stáhnou ze serveru.",
-                    color = InkFaint,
-                    fontSize = 13.sp
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-            Box(
+
+        info != null -> {
+            Column(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(BgDeep)
-                    .clickable(enabled = !busy) { onCheck() }
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .fillMaxWidth()
+                    .card()
+                    .padding(20.dp)
             ) {
                 Text(
-                    if (busy) "Kontroluji..." else "Zkontrolovat",
+                    "Nová verze ${info.versionName}",
+                    color = Ink,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    "Co je nového",
                     color = BlueStrong,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
                 )
+                Spacer(Modifier.height(6.dp))
+                val lines = info.notes.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
+                if (lines.isEmpty()) {
+                    Text("Vylepšení a opravy.", color = InkSoft, fontSize = 14.sp, lineHeight = 20.sp)
+                } else {
+                    lines.forEach { line ->
+                        Row(modifier = Modifier.padding(vertical = 3.dp)) {
+                            Text("•  ", color = BlueStrong, fontSize = 14.sp)
+                            Text(line, color = InkSoft, fontSize = 14.sp, lineHeight = 20.sp)
+                        }
+                    }
+                }
+                Spacer(Modifier.height(18.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(Blue)
+                        .clickable { onUpdate() }
+                        .padding(vertical = 14.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Stáhnout a nainstalovat",
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Text("Data i nastavení zůstanou.", color = InkFaint, fontSize = 12.sp)
+            }
+        }
+
+        else -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .card()
+                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Verze ${Updater.currentVersionName()}",
+                        color = Ink,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        message ?: "Aktualizace se stáhnou ze serveru.",
+                        color = InkFaint,
+                        fontSize = 13.sp
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(BgDeep)
+                        .clickable { onCheck() }
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                ) {
+                    Text(
+                        "Zkontrolovat",
+                        color = BlueStrong,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
         }
     }

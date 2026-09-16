@@ -1,0 +1,4 @@
+Chytřejší spouštění: obrazovka nevyskakuje, když se do appky rychle vrátíš (třeba z výběru fotky).
+Znovu se objeví až po delší pauze (5 minut) nebo po čerstvém otevření.
+Když v appce aktivně jsi, už neruší.
+Hezčí aktualizace: vidíš, co je nového, a průběh stahování.

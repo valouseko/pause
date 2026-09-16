@@ -9,7 +9,7 @@ data class Target(
     val enabled: Boolean = true,
     val cooldownSec: Int = 8,
     val reasonMinChars: Int = 20,
-    val sessionGapSec: Int = 45
+    val sessionGapSec: Int = 300
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("packageName", packageName)
@@ -27,7 +27,7 @@ data class Target(
             enabled = o.optBoolean("enabled", true),
             cooldownSec = o.optInt("cooldownSec", 8),
             reasonMinChars = o.optInt("reasonMinChars", 20),
-            sessionGapSec = o.optInt("sessionGapSec", 45)
+            sessionGapSec = o.optInt("sessionGapSec", 300)
         )
     }
 }

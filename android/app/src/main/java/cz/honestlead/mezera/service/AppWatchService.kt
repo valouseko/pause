@@ -9,31 +9,44 @@ import cz.honestlead.mezera.ui.InterventionActivity
 // Sleduje, která appka jde do popředí. Když je hlídaná, spustí intervenci.
 class AppWatchService : AccessibilityService() {
 
-    // Kdy jsme naposledy zasáhli u daného balíčku (kvůli klidu mezi dotazy).
-    private val lastHandled = HashMap<String, Long>()
+    // Naposledy, kdy byl daný balíček v popředí (obnovuje se pokaždé, co v něm jsi).
+    private val lastSeen = HashMap<String, Long>()
+
+    // Poslední balíček v popředí (kvůli ignorování drobných událostí ve stejné appce).
+    private var lastForegroundPkg: String? = null
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
         val pkg = event.packageName?.toString() ?: return
-        if (pkg == packageName) return // vlastní okno (intervence) ignorujeme
+        // Vlastní okno (intervence) ignorujeme a NEmažeme čas cíle - ať se po
+        // zavření overlaye hned znovu nespustí.
+        if (pkg == packageName) return
 
         val store = Store.get(this)
         if (!store.enabled) return
 
-        val target = store.getTarget(pkg) ?: return
-        if (!target.enabled) return
+        val target = store.getTarget(pkg)
+        if (target == null || !target.enabled) {
+            // V popředí je něco, co nehlídáme. Zapamatujeme si to, ale nezasahujeme.
+            lastForegroundPkg = pkg
+            return
+        }
 
-        // Musí to být otevření celé appky, ne jen dialog uvnitř. Hrubý filtr:
-        // TYPE_WINDOW_STATE_CHANGED se třídou aktivity je ok; necháme projít vše
-        // a spoléháme na klid mezi dotazy (sessionGap).
         val now = System.currentTimeMillis()
-        val last = lastHandled[pkg]
+        val last = lastSeen[pkg]
         val gapMs = target.sessionGapSec * 1000L
-        if (last != null && now - last < gapMs) return
 
-        lastHandled[pkg] = now
+        // Zásah jen když jsme v cíli poprvé, nebo po delší pauze (ne krátký odskok).
+        val intervene = last == null || now - last > gapMs
+
+        // Čas obnovíme VŽDY, když je cíl v popředí (i bez zásahu) - takže dokud
+        // appku aktivně používáš (i 20 minut), znovu to nevyskočí.
+        lastSeen[pkg] = now
+        lastForegroundPkg = pkg
+
+        if (!intervene) return
 
         val intent = Intent(this, InterventionActivity::class.java).apply {
             addFlags(

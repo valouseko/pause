@@ -52,7 +52,11 @@ object Updater {
         }
     }
 
-    suspend fun downloadApk(context: Context, url: String): File = withContext(Dispatchers.IO) {
+    suspend fun downloadApk(
+        context: Context,
+        url: String,
+        onProgress: (Float) -> Unit = {}
+    ): File = withContext(Dispatchers.IO) {
         val dir = File(context.cacheDir, "updates")
         dir.mkdirs()
         val out = File(dir, "Pause.apk")
@@ -63,8 +67,21 @@ object Updater {
             readTimeout = 60000
         }
         try {
+            val total = conn.contentLengthLong
             conn.inputStream.use { input ->
-                out.outputStream().use { output -> input.copyTo(output, 64 * 1024) }
+                out.outputStream().use { output ->
+                    val buf = ByteArray(64 * 1024)
+                    var readTotal = 0L
+                    while (true) {
+                        val n = input.read(buf)
+                        if (n < 0) break
+                        output.write(buf, 0, n)
+                        readTotal += n
+                        if (total > 0) {
+                            onProgress((readTotal.toFloat() / total).coerceIn(0f, 1f))
+                        }
+                    }
+                }
             }
         } finally {
             conn.disconnect()
