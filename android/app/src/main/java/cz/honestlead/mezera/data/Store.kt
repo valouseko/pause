@@ -15,6 +15,13 @@ class Store private constructor(context: Context) {
             prefs.edit().putBoolean("enabled", v).apply()
         }
 
+    // Poslední verze, na kterou už jsme upozornili notifikací (ať neotravuje dokola).
+    var lastNotifiedVersion: Int
+        get() = prefs.getInt("lastNotifiedVersion", 0)
+        set(v) {
+            prefs.edit().putInt("lastNotifiedVersion", v).apply()
+        }
+
     // ---- Cíle ----
     fun getTargets(): List<Target> {
         val s = prefs.getString("targets", null) ?: return emptyList()
