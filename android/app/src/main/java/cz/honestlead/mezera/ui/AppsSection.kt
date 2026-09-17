@@ -1,5 +1,8 @@
 package cz.honestlead.mezera.ui
 
+import cz.honestlead.mezera.R
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -67,7 +70,7 @@ fun LazyListScope.appsSection(
 
     item {
         Text(
-            "Vyber appky, u kterých se tě Mezera zeptá, proč tam jdeš.",
+            stringResource(R.string.choose_apps),
             color = InkSoft,
             fontSize = 15.sp,
             lineHeight = 21.sp
@@ -81,7 +84,7 @@ fun LazyListScope.appsSection(
             onValueChange = onQuery,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            placeholder = { Text("Hledat appku...", color = InkFaint) },
+            placeholder = { Text(stringResource(R.string.search_apps), color = InkFaint) },
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BlueSoft,
@@ -105,7 +108,7 @@ fun LazyListScope.appsSection(
                     .padding(vertical = 40.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Načítám appky...", color = InkFaint, fontSize = 15.sp)
+                Text(stringResource(R.string.loading_apps), color = InkFaint, fontSize = 15.sp)
             }
         }
         return
@@ -190,7 +193,7 @@ private fun AppRow(
                 Text(app.label, color = Ink, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                 if (target != null) {
                     Text(
-                        "nádech ${target.cooldownSec}s · důvod min. ${target.reasonMinChars} znaků · klepni pro úpravu",
+                        stringResource(R.string.target_summary, target.cooldownSec, target.reasonMinChars),
                         color = InkFaint,
                         fontSize = 12.5.sp
                     )
@@ -248,20 +251,20 @@ fun EditTargetDialog(
                         sessionGapSec = gap
                     )
                 )
-            }) { Text("Uložit", color = BlueStrong, fontWeight = FontWeight.SemiBold) }
+            }) { Text(stringResource(R.string.save), color = BlueStrong, fontWeight = FontWeight.SemiBold) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Zrušit", color = InkSoft) }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), color = InkSoft) }
         },
         title = { Text(target.label, fontWeight = FontWeight.Bold, color = Ink) },
         containerColor = Surface,
         text = {
             Column {
-                StepperRow("Nádech (s)", cooldown, 0, 120, 1) { cooldown = it }
+                StepperRow(stringResource(R.string.breath_seconds), cooldown, 0, 120, 1) { cooldown = it }
                 Spacer(Modifier.height(8.dp))
-                StepperRow("Min. znaků důvodu", minChars, 0, 200, 5) { minChars = it }
+                StepperRow(stringResource(R.string.reason_minimum), minChars, 0, 200, 5) { minChars = it }
                 Spacer(Modifier.height(8.dp))
-                StepperRow("Klid mezi dotazy (s)", gap, 0, 600, 15) { gap = it }
+                StepperRow(stringResource(R.string.session_gap), gap, 0, 600, 15) { gap = it }
             }
         }
     )

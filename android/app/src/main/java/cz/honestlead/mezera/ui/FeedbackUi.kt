@@ -1,5 +1,8 @@
 package cz.honestlead.mezera.ui
 
+import cz.honestlead.mezera.R
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -84,16 +87,17 @@ fun FeedbackEntry(onClick: () -> Unit) {
         }
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text("Máš nápad nebo něco nefunguje?", color = Ink, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-            Text("Napiš mi, přečtu si každý vzkaz.", color = InkFaint, fontSize = 13.sp)
+            Text(stringResource(R.string.feedback_title), color = Ink, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.feedback_subtitle), color = InkFaint, fontSize = 13.sp)
         }
         Spacer(Modifier.width(10.dp))
-        Text("Napsat", color = BlueStrong, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.write), color = BlueStrong, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
 @Composable
 fun FeedbackDialog(onDismiss: () -> Unit, onSend: suspend (String) -> Boolean) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
@@ -106,7 +110,7 @@ fun FeedbackDialog(onDismiss: () -> Unit, onSend: suspend (String) -> Boolean) {
         confirmButton = {
             if (done) {
                 TextButton(onClick = onDismiss) {
-                    Text("Zavřít", color = BlueStrong, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.close), color = BlueStrong, fontWeight = FontWeight.SemiBold)
                 }
             } else {
                 TextButton(
@@ -118,12 +122,12 @@ fun FeedbackDialog(onDismiss: () -> Unit, onSend: suspend (String) -> Boolean) {
                             val ok = onSend(text)
                             busy = false
                             if (ok) done = true
-                            else error = "Nepovedlo se odeslat. Zkontroluj připojení a zkus to znovu."
+                            else error = context.getString(R.string.feedback_error)
                         }
                     }
                 ) {
                     Text(
-                        if (busy) "Odesílám..." else "Odeslat",
+                        if (busy) stringResource(R.string.sending) else stringResource(R.string.send),
                         color = if (canSend) BlueStrong else InkFaint,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -132,19 +136,19 @@ fun FeedbackDialog(onDismiss: () -> Unit, onSend: suspend (String) -> Boolean) {
         },
         dismissButton = {
             if (!done && !busy) {
-                TextButton(onClick = onDismiss) { Text("Zrušit", color = InkSoft) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), color = InkSoft) }
             }
         },
         title = {
-            Text(if (done) "Odesláno" else "Napiš mi", fontWeight = FontWeight.Bold, color = Ink)
+            Text(if (done) stringResource(R.string.sent) else stringResource(R.string.write_to_me), fontWeight = FontWeight.Bold, color = Ink)
         },
         containerColor = Surface,
         text = {
             if (done) {
-                Text("Úspěšně odesláno. Díky, mrknu na to.", color = InkSoft, fontSize = 14.sp)
+                Text(stringResource(R.string.feedback_success), color = InkSoft, fontSize = 14.sp)
             } else {
                 Column {
-                    Text("Co nefunguje, nebo co bys chtěl přidat?", color = InkSoft, fontSize = 14.sp)
+                    Text(stringResource(R.string.feedback_prompt), color = InkSoft, fontSize = 14.sp)
                     Spacer(Modifier.height(12.dp))
                     OutlinedTextField(
                         value = text,
@@ -153,7 +157,7 @@ fun FeedbackDialog(onDismiss: () -> Unit, onSend: suspend (String) -> Boolean) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(140.dp),
-                        placeholder = { Text("Sem napiš svůj vzkaz...", color = InkFaint) },
+                        placeholder = { Text(stringResource(R.string.feedback_placeholder), color = InkFaint) },
                         shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BlueSoft,

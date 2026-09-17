@@ -1,8 +1,11 @@
 package cz.honestlead.mezera.ui
 
+import cz.honestlead.mezera.R
+import androidx.compose.ui.res.stringResource
+
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -69,7 +72,7 @@ import cz.honestlead.mezera.ui.theme.Surface
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class InterventionActivity : ComponentActivity() {
+class InterventionActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_PACKAGE = "packageName"
@@ -82,7 +85,7 @@ class InterventionActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val pkg = intent.getStringExtra(EXTRA_PACKAGE) ?: ""
-        val label = intent.getStringExtra(EXTRA_LABEL) ?: "aplikace"
+        val label = intent.getStringExtra(EXTRA_LABEL) ?: getString(R.string.application)
         val cooldownSec = intent.getIntExtra(EXTRA_COOLDOWN, 8)
         val minChars = intent.getIntExtra(EXTRA_MIN_CHARS, 20)
 
@@ -133,7 +136,7 @@ private fun InterventionScreen(
     onAbandon: (String) -> Unit
 ) {
     var phase by remember { mutableStateOf(Phase.Breath) }
-    var breathLabel by remember { mutableStateOf("Nadechni se") }
+    var breathLabel by remember { mutableStateOf(R.string.breathe_in) }
     var reason by remember { mutableStateOf("") }
 
     val scale = remember { Animatable(0.82f) }
@@ -144,11 +147,11 @@ private fun InterventionScreen(
     androidx.compose.runtime.LaunchedEffect(Unit) {
         val breathJob = launch {
             while (true) {
-                breathLabel = "Nadechni se"
+                breathLabel = R.string.breathe_in
                 scale.animateTo(1.3f, tween(4000, easing = FastOutSlowInEasing))
-                breathLabel = "Zadrž"
+                breathLabel = R.string.hold
                 delay(1200)
-                breathLabel = "Vydechni"
+                breathLabel = R.string.breathe_out
                 scale.animateTo(0.82f, tween(4200, easing = FastOutSlowInEasing))
             }
         }
@@ -175,7 +178,7 @@ private fun InterventionScreen(
             enter = fadeIn(tween(400)),
             exit = fadeOut(tween(400))
         ) {
-            BreathContent(label = label, breathLabel = breathLabel, scale = scale.value, progress = progress.value)
+            BreathContent(label = label, breathLabel = stringResource(breathLabel), scale = scale.value, progress = progress.value)
         }
 
         AnimatedVisibility(
@@ -249,13 +252,7 @@ private fun BreathContent(label: String, breathLabel: String, scale: Float, prog
         )
         androidx.compose.foundation.layout.Spacer(Modifier.height(10.dp))
         Text(
-            text = buildAnnotatedString {
-                append("Dej si vteřinu, než otevřeš ")
-                withStyle(SpanStyle(color = BlueStrong, fontWeight = FontWeight.SemiBold)) {
-                    append(label)
-                }
-                append(".")
-            },
+            text = stringResource(R.string.before_opening, label),
             color = InkSoft,
             fontSize = 16.sp,
             textAlign = TextAlign.Center
@@ -299,11 +296,7 @@ private fun ReasonContent(
         }
         androidx.compose.foundation.layout.Spacer(Modifier.height(26.dp))
         Text(
-            text = buildAnnotatedString {
-                append("Proč jdeš do ")
-                withStyle(SpanStyle(color = BlueStrong)) { append(label) }
-                append("?")
-            },
+            text = stringResource(R.string.why_opening, label),
             color = Ink,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
@@ -311,7 +304,7 @@ private fun ReasonContent(
         )
         androidx.compose.foundation.layout.Spacer(Modifier.height(12.dp))
         Text(
-            text = "Napiš to popravdě. Uvidíš to pak ve statistikách.",
+            text = stringResource(R.string.reason_hint),
             color = InkSoft,
             fontSize = 15.sp,
             textAlign = TextAlign.Center
@@ -324,7 +317,7 @@ private fun ReasonContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp),
-            placeholder = { Text("Napiš aspoň $minChars znaků...", color = InkFaint) },
+            placeholder = { Text(stringResource(R.string.reason_placeholder, minChars), color = InkFaint) },
             shape = RoundedCornerShape(20.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = BlueSoft,
@@ -364,11 +357,11 @@ private fun ReasonContent(
                 .fillMaxWidth()
                 .height(56.dp)
         ) {
-            Text("Pokračovat do $label", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.continue_to, label), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
         androidx.compose.foundation.layout.Spacer(Modifier.height(6.dp))
         TextButton(onClick = onAbandon) {
-            Text("Rozmyslel jsem si to", color = InkSoft, fontSize = 15.sp)
+            Text(stringResource(R.string.abandon), color = InkSoft, fontSize = 15.sp)
         }
     }
 }

@@ -1,3 +1,4 @@
-Nové: napiš mi feedback přímo z appky (tlačítko pod aktualizací). Napíšeš, co nefunguje nebo co přidat, a odešle se mi to.
-Chytřejší spouštění: obrazovka nevyskakuje, když se do appky rychle vrátíš (třeba z výběru fotky). Objeví se až po delší pauze nebo po čerstvém otevření.
-Hezčí aktualizace: vidíš, co je nového, a průběh stahování.
+﻿Pause nyní umí anglicky i česky v celé aplikaci.
+Jazyk přepneš v Nastavení přes ozubené kolečko vpravo nahoře.
+Volba jazyka zůstane i po restartu a dalších aktualizacích.
+Po této aktualizaci je výchozí angličtina. Hlídané appky i statistiky zůstanou.

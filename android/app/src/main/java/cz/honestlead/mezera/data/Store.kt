@@ -37,6 +37,18 @@ class Store private constructor(context: Context) {
             prefs.edit().putBoolean("enabled", v).apply()
         }
 
+    // A new preference only: existing targets, permissions and events stay intact.
+    var language: String
+        get() = if (prefs.getString("language", "en") == "cs") "cs" else "en"
+        set(value) {
+            require(value == "en" || value == "cs")
+            prefs.edit().putString("language", value).apply()
+        }
+
+    var languageInitialized: Boolean
+        get() = prefs.getBoolean("languageInitialized", false)
+        set(value) { prefs.edit().putBoolean("languageInitialized", value).apply() }
+
     // Poslední verze, na kterou už jsme upozornili notifikací (ať neotravuje dokola).
     var lastNotifiedVersion: Int
         get() = prefs.getInt("lastNotifiedVersion", 0)

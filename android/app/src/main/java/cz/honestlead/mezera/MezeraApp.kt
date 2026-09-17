@@ -10,6 +10,7 @@ class MezeraApp : Application() {
         super.onCreate()
         // Nahřejeme singleton úložiště.
         Store.get(this)
+        AppLanguage.initialize(this)
         // Notifikační kanál + periodická kontrola aktualizací na pozadí.
         Notifier.ensureChannel(this)
         UpdateWorker.schedule(this)

@@ -1,10 +1,20 @@
 package cz.honestlead.mezera.ui
 
+import cz.honestlead.mezera.R
+import androidx.compose.ui.res.stringResource
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
+import cz.honestlead.mezera.AppLanguage
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -73,7 +83,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -91,12 +101,12 @@ private fun AppRoot() {
 
     var refreshKey by remember { mutableIntStateOf(0) }
     var enabled by remember { mutableStateOf(store.enabled) }
-    var tab by remember { mutableIntStateOf(0) } // 0 = appky, 1 = statistiky
+    var tab by rememberSaveable { mutableIntStateOf(0) } // 0 = appky, 1 = statistiky
 
     var targets by remember { mutableStateOf(store.getTargets()) }
     var apps by remember { mutableStateOf<List<AppInfo>>(emptyList()) }
     var loadingApps by remember { mutableStateOf(true) }
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
     var editing by remember { mutableStateOf<Target?>(null) }
     var events by remember { mutableStateOf(store.getEvents()) }
 
@@ -106,6 +116,7 @@ private fun AppRoot() {
     var updateMsg by remember { mutableStateOf<String?>(null) }
     var updateProgress by remember { mutableFloatStateOf(0f) }
     var showFeedback by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
 
     val accessibilityOn = remember(refreshKey) { Perm.accessibilityEnabled(context) }
     val overlayOn = remember(refreshKey) { Perm.overlayGranted(context) }
@@ -131,31 +142,31 @@ private fun AppRoot() {
     fun doCheckUpdate() {
         scope.launch {
             updateBusy = true
-            updateMsg = "Kontroluji..."
+            updateMsg = context.getString(R.string.checking)
             val info = Updater.check()
             updateInfo = info
             updateBusy = false
-            updateMsg = if (info == null) "Máš nejnovější verzi." else null
+            updateMsg = if (info == null) context.getString(R.string.up_to_date) else null
         }
     }
 
     fun doUpdate() {
         val info = updateInfo ?: return
         if (!Updater.canInstall(context)) {
-            updateMsg = "Povol \"instalovat neznámé appky\" a zkus to znovu."
+            updateMsg = context.getString(R.string.allow_install)
             Updater.openUnknownSourcesSettings(context)
             return
         }
         scope.launch {
             updateBusy = true
             updateProgress = 0f
-            updateMsg = "Stahuji novou verzi..."
+            updateMsg = context.getString(R.string.downloading)
             try {
                 val file = Updater.downloadApk(context, info.apkUrl) { p -> updateProgress = p }
-                updateMsg = "Spouštím instalaci..."
+                updateMsg = context.getString(R.string.installing)
                 Updater.installApk(context, file)
             } catch (e: Exception) {
-                updateMsg = "Stažení se nepovedlo, zkus to znovu."
+                updateMsg = context.getString(R.string.download_failed)
             }
             updateBusy = false
         }
@@ -202,6 +213,7 @@ private fun AppRoot() {
         item {
             BrandHeader(
                 enabled = enabled,
+                onSettings = { showSettings = true },
                 onToggle = {
                     enabled = it
                     store.enabled = it
@@ -275,18 +287,30 @@ private fun AppRoot() {
             onSend = { text -> Feedback.send(text) }
         )
     }
+    if (showSettings) {
+        LanguageSettingsDialog(
+            selected = AppLanguage.current(context),
+            onDismiss = { showSettings = false },
+            onSelect = { language ->
+                showSettings = false
+                AppLanguage.select(context, language)
+            }
+        )
+    }
 }
 
 @Composable
-private fun BrandHeader(enabled: Boolean, onToggle: (Boolean) -> Unit) {
+private fun BrandHeader(enabled: Boolean, onToggle: (Boolean) -> Unit, onSettings: () -> Unit) {
+    val monitoringLabel = stringResource(R.string.monitoring_toggle)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(modifier = Modifier.orb(46.dp))
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text("Pause", color = Ink, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-            Text("vteřina na rozmyšlenou", color = InkFaint, fontSize = 13.sp)
+            Text(stringResource(R.string.tagline), color = InkFaint, fontSize = 13.sp)
         }
         Switch(
+            modifier = Modifier.semantics { contentDescription = monitoringLabel },
             checked = enabled,
             onCheckedChange = onToggle,
             colors = SwitchDefaults.colors(
@@ -297,6 +321,13 @@ private fun BrandHeader(enabled: Boolean, onToggle: (Boolean) -> Unit) {
                 uncheckedBorderColor = LineStrong
             )
         )
+        IconButton(onClick = onSettings) {
+            Icon(
+                painter = painterResource(R.drawable.ic_settings),
+                contentDescription = stringResource(R.string.settings),
+                tint = InkSoft
+            )
+        }
     }
 }
 
@@ -322,7 +353,7 @@ private fun PermissionSection(
                     .background(Blue)
             )
             Spacer(Modifier.width(12.dp))
-            Text("Vše připraveno, Mezera hlídá.", color = InkSoft, fontSize = 15.sp)
+            Text(stringResource(R.string.ready), color = InkSoft, fontSize = 15.sp)
         }
         return
     }
@@ -330,17 +361,17 @@ private fun PermissionSection(
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (!accessibilityOn) {
             PermissionCard(
-                title = "Zapni hlídání appek",
-                body = "Mezera potřebuje vidět, kterou appku otvíráš. Zapni ji v Přístupnosti (Accessibility).",
-                cta = "Otevřít nastavení",
+                title = stringResource(R.string.permission_monitor),
+                body = stringResource(R.string.permission_monitor_body),
+                cta = stringResource(R.string.open_settings),
                 onClick = onAccessibility
             )
         }
         if (!overlayOn) {
             PermissionCard(
-                title = "Povol překrytí ostatních appek",
-                body = "Aby se klidná obrazovka mohla ukázat přes appku, kterou otvíráš.",
-                cta = "Povolit překrytí",
+                title = stringResource(R.string.permission_overlay),
+                body = stringResource(R.string.permission_overlay_body),
+                cta = stringResource(R.string.allow_overlay),
                 onClick = onOverlay
             )
         }
@@ -379,9 +410,9 @@ private fun Tabs(tab: Int, onTab: (Int) -> Unit) {
             .background(BgDeep)
             .padding(4.dp)
     ) {
-        TabPill("Appky", tab == 0) { onTab(0) }
+        TabPill(stringResource(R.string.apps), tab == 0) { onTab(0) }
         Spacer(Modifier.width(4.dp))
-        TabPill("Statistiky", tab == 1) { onTab(1) }
+        TabPill(stringResource(R.string.stats), tab == 1) { onTab(1) }
     }
 }
 
@@ -421,7 +452,7 @@ private fun UpdateCard(
                     .padding(20.dp)
             ) {
                 Text(
-                    message ?: "Pracuji...",
+                    message ?: stringResource(R.string.working),
                     color = Ink,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
@@ -460,22 +491,23 @@ private fun UpdateCard(
                     .padding(20.dp)
             ) {
                 Text(
-                    "Nová verze ${info.versionName}",
+                    stringResource(R.string.new_version, info.versionName),
                     color = Ink,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    "Co je nového",
+                    stringResource(R.string.whats_new),
                     color = BlueStrong,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(Modifier.height(6.dp))
-                val lines = info.notes.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
+                val lines = info.notesFor(AppLanguage.current(LocalContext.current))
+                    .split("\n").map { it.trim() }.filter { it.isNotEmpty() }
                 if (lines.isEmpty()) {
-                    Text("Vylepšení a opravy.", color = InkSoft, fontSize = 14.sp, lineHeight = 20.sp)
+                    Text(stringResource(R.string.release_fallback), color = InkSoft, fontSize = 14.sp, lineHeight = 20.sp)
                 } else {
                     lines.forEach { line ->
                         Row(modifier = Modifier.padding(vertical = 3.dp)) {
@@ -495,14 +527,14 @@ private fun UpdateCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Stáhnout a nainstalovat",
+                        stringResource(R.string.install_update),
                         color = Color.White,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
                 Spacer(Modifier.height(8.dp))
-                Text("Data i nastavení zůstanou.", color = InkFaint, fontSize = 12.sp)
+                Text(stringResource(R.string.data_preserved), color = InkFaint, fontSize = 12.sp)
             }
         }
 
@@ -516,13 +548,13 @@ private fun UpdateCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "Verze ${Updater.currentVersionName()}",
+                        stringResource(R.string.version, Updater.currentVersionName()),
                         color = Ink,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        message ?: "Aktualizace se stáhnou ze serveru.",
+                        message ?: stringResource(R.string.update_source),
                         color = InkFaint,
                         fontSize = 13.sp
                     )
@@ -536,7 +568,7 @@ private fun UpdateCard(
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
                     Text(
-                        "Zkontrolovat",
+                        stringResource(R.string.check_updates),
                         color = BlueStrong,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold

@@ -1,5 +1,8 @@
 package cz.honestlead.mezera.ui
 
+import cz.honestlead.mezera.R
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,17 +62,17 @@ fun LazyListScope.statsSection(
         HeroSummary(total = total, saved = fmtSaved(savedMin))
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(abandoned.toString(), "rozmyslel sis to", Modifier.weight(1f))
-            StatTile(top, "kam nejčastěji", Modifier.weight(1f))
+            StatTile(abandoned.toString(), stringResource(R.string.changed_mind), Modifier.weight(1f))
+            StatTile(top, stringResource(R.string.top_app), Modifier.weight(1f))
         }
         Spacer(Modifier.height(28.dp))
     }
 
     item {
-        Text("Kam nejčastěji chodíš", color = InkSoft, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.frequent_apps), color = InkSoft, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(14.dp))
         if (bars.isEmpty()) {
-            EmptyBox("Zatím žádná data. Až tě Mezera zastaví, uvidíš to tu.")
+            EmptyBox(stringResource(R.string.no_stats))
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 for (b in bars) {
@@ -83,7 +86,7 @@ fun LazyListScope.statsSection(
     item {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "Poslední důvody",
+                stringResource(R.string.recent_reasons),
                 color = InkSoft,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -97,7 +100,7 @@ fun LazyListScope.statsSection(
                         .clickable { onClear() }
                         .padding(horizontal = 14.dp, vertical = 8.dp)
                 ) {
-                    Text("Vymazat", color = InkSoft, fontSize = 13.sp)
+                    Text(stringResource(R.string.clear), color = InkSoft, fontSize = 13.sp)
                 }
             }
         }
@@ -106,7 +109,7 @@ fun LazyListScope.statsSection(
 
     val recent = events.asReversed().take(50)
     if (recent.isEmpty()) {
-        item { EmptyBox("Žádné důvody zatím.") }
+        item { EmptyBox(stringResource(R.string.no_reasons)) }
     } else {
         items(recent.size) { i ->
             TimelineItem(recent[i])
@@ -139,11 +142,11 @@ private fun HeroSummary(total: Int, saved: String) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(total.toString(), color = Color.White, fontSize = 38.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-            Text("zásahů celkem", color = Color.White.copy(alpha = 0.85f), fontSize = 14.sp)
+            Text(stringResource(R.string.total_pauses), color = Color.White.copy(alpha = 0.85f), fontSize = 14.sp)
         }
         Column(modifier = Modifier.weight(1.2f)) {
             Text(saved, color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-            Text("ušetřeno (odhad)", color = Color.White.copy(alpha = 0.85f), fontSize = 14.sp)
+            Text(stringResource(R.string.time_saved), color = Color.White.copy(alpha = 0.85f), fontSize = 14.sp)
         }
     }
 }
@@ -220,7 +223,7 @@ private fun TimelineItem(e: InterventionEvent) {
                         .padding(horizontal = 9.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        if (abandoned) "rozmyslel" else "vešel",
+                        if (abandoned) stringResource(R.string.abandoned) else stringResource(R.string.continued),
                         color = if (abandoned) Abandon else BlueStrong,
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.SemiBold
@@ -229,7 +232,7 @@ private fun TimelineItem(e: InterventionEvent) {
             }
             Spacer(Modifier.height(4.dp))
             Text(
-                e.reason.ifBlank { "(bez důvodu)" },
+                e.reason.ifBlank { stringResource(R.string.no_reason) },
                 color = InkSoft,
                 fontSize = 14.sp,
                 lineHeight = 20.sp
@@ -251,8 +254,10 @@ private fun EmptyBox(text: String) {
     }
 }
 
+@Composable
 private fun fmtWhen(ts: Long): String {
-    val hhmm = SimpleDateFormat("HH:mm", Locale("cs")).format(Date(ts))
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    val hhmm = SimpleDateFormat("HH:mm", locale).format(Date(ts))
     val now = Calendar.getInstance()
     val d = Calendar.getInstance().apply { timeInMillis = ts }
     val sameDay = now.get(Calendar.YEAR) == d.get(Calendar.YEAR) &&
@@ -261,8 +266,8 @@ private fun fmtWhen(ts: Long): String {
     val yest = now.get(Calendar.YEAR) == d.get(Calendar.YEAR) &&
         now.get(Calendar.DAY_OF_YEAR) == d.get(Calendar.DAY_OF_YEAR)
     return when {
-        sameDay -> "dnes $hhmm"
-        yest -> "včera $hhmm"
-        else -> "${d.get(Calendar.DAY_OF_MONTH)}.${d.get(Calendar.MONTH) + 1}. $hhmm"
+        sameDay -> stringResource(R.string.today_at, hhmm)
+        yest -> stringResource(R.string.yesterday_at, hhmm)
+        else -> java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT, locale).format(Date(ts))
     }
 }

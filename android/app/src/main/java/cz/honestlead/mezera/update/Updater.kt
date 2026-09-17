@@ -17,8 +17,11 @@ data class UpdateInfo(
     val versionCode: Int,
     val versionName: String,
     val notes: String,
-    val apkUrl: String
-)
+    val apkUrl: String,
+    val notesEn: String = ""
+) {
+    fun notesFor(language: String): String = if (language == "cs") notes else notesEn
+}
 
 // Aktualizace ze serveru (GitHub Releases). Stálý podpis = instaluje se přes starou
 // verzi, data i oprávnění zůstávají.
@@ -44,7 +47,8 @@ object Updater {
                     versionCode = vc,
                     versionName = o.optString("versionName", vc.toString()),
                     notes = o.optString("notes", ""),
-                    apkUrl = o.optString("apkUrl", APK_URL_FALLBACK)
+                    apkUrl = o.optString("apkUrl", APK_URL_FALLBACK),
+                    notesEn = o.optString("notesEn", "")
                 )
             } else null
         } catch (e: Exception) {
