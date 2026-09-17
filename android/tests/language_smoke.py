@@ -39,6 +39,17 @@ def find(label):
     raise AssertionError(f'UI label not found: {label}')
 
 
+def reveal(label):
+    for _ in range(6):
+        for node in tree().iter('node'):
+            if label in (node.get('text'), node.get('content-desc')):
+                return node
+        size = adb('shell', 'wm', 'size')
+        width, height = map(int, re.findall(r'(\d+)x(\d+)', size)[-1])
+        adb('shell', 'input', 'swipe', str(width//2), str(height*4//5), str(width//2), str(height//3), '400')
+    return find(label)
+
+
 def tap(node):
     x1, y1, x2, y2 = map(int, re.findall(r'\d+', node.get('bounds')))
     adb('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
@@ -67,14 +78,13 @@ try:
     adb('install', '-r', '-g', 'previous.apk')
     launch()
     # Existing installs must keep their non-language preferences through the update.
-    switches = [node for node in tree().iter('node') if node.get('class') == 'android.widget.Switch']
+    switches = [node for node in tree().iter('node') if node.get('checkable') == 'true']
     assert switches, 'Old app did not launch'
     if switches[0].get('checked') == 'true':
         tap(switches[0])
     adb('install', '-r', '-g', str(APK))
     launch()
     find('Settings')
-    find('Apps')
     check_switch()
     screenshot('english')
     tap(find('Settings'))
@@ -82,7 +92,6 @@ try:
     screenshot('language-picker')
     tap(find('Čeština'))
     find('Nastavení')
-    find('Appky')
     launch()
     find('Nastavení')
     screenshot('czech-restarted')
@@ -96,11 +105,12 @@ try:
     launch()
     find('Settings')
     check_switch()
-    tap(find('Statistics'))
-    find('Your most opened apps')
+    tap(reveal('Statistics'))
+    reveal('Your most opened apps')
     screenshot('english-statistics')
     print(f'PASS API {API}: upgrade defaults to English, CZ/EN switch, process restart, reinstall, preserved monitoring preference, stats UI')
 except Exception:
+    (OUT / f'failure-{API}.xml').write_bytes(ET.tostring(tree()))
     screenshot('failure')
     (OUT / f'logcat-{API}.txt').write_text(adb('logcat', '-d', '-t', '1500'), encoding='utf-8')
     raise

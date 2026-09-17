@@ -3,6 +3,8 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, shell, screen } = require('electron');
 const path = require('path');
 const { Store } = require('./store');
+const i18n = require('../renderer/i18n');
+const tr = text => i18n.tr(store?.getConfig().language || 'en', text);
 const { getActiveWindow, SessionTracker } = require('./detector');
 
 // ------- Stav aplikace -------
@@ -46,10 +48,10 @@ function trayImage() {
 function buildTrayMenu() {
   const cfg = store.getConfig();
   return Menu.buildFromTemplate([
-    { label: 'Otevřít Pause', click: () => showDashboard() },
+    { label: tr("Otevřít Pause"), click: () => showDashboard() },
     { type: 'separator' },
     {
-      label: cfg.enabled ? 'Pozastavit hlídání' : 'Zapnout hlídání',
+      label: cfg.enabled ? tr("Pozastavit hlídání") : tr("Zapnout hlídání"),
       click: () => {
         const c = store.getConfig();
         c.enabled = !c.enabled;
@@ -59,14 +61,14 @@ function buildTrayMenu() {
       }
     },
     { type: 'separator' },
-    { label: 'Konec', click: () => { isQuitting = true; app.quit(); } }
+    { label: tr("Konec"), click: () => { isQuitting = true; app.quit(); } }
   ]);
 }
 
 function refreshTray() {
   if (!tray) return;
   const cfg = store.getConfig();
-  tray.setToolTip(cfg.enabled ? 'Pause - hlídá' : 'Pause - pozastaveno');
+  tray.setToolTip(cfg.enabled ? tr("Pause - hlídá") : tr("Pause - pozastaveno"));
   tray.setContextMenu(buildTrayMenu());
 }
 
@@ -254,7 +256,7 @@ function registerIpc() {
       const wins = await mod.openWindows();
       const seen = new Map();
       for (const w of wins) {
-        const name = (w.owner && w.owner.name) || 'neznámé';
+        const name = (w.owner && w.owner.name) || tr("neznámé");
         if (!seen.has(name)) {
           seen.set(name, { name, title: w.title || '', path: (w.owner && w.owner.path) || '' });
         }

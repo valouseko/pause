@@ -18,6 +18,8 @@ const abandonBtn = el('abandonBtn');
 const RING_CIRC = 917; // 2*pi*146
 
 let target = null;
+let language = 'en';
+const tr = (text, values) => PauseI18n.tr(language, text, values);
 let minChars = 20;
 let breathTimer = null;
 
@@ -27,17 +29,17 @@ function setPhase(node) {
 }
 
 function setAppName(name) {
-  el('appNameBreath').textContent = name;
-  el('appNameQ').textContent = name;
-  el('appNameBtn').textContent = name;
+  document.querySelector('.breath-sub').textContent = tr('Dej si vteřinu, než otevřeš {name}.', { name });
+  document.querySelector('.question').textContent = tr('Proč jdeš do {name}?', { name });
+  continueBtn.textContent = tr('Pokračovat do {name}', { name });
 }
 
 // ---------- Dýchání ----------
 function runBreath(durationMs, onDone) {
   const phases = [
-    { label: 'Nadechni se', dur: 4000, scale: 1.32 },
-    { label: 'Zadrž', dur: 1400, scale: 1.32 },
-    { label: 'Vydechni', dur: 4200, scale: 0.82 }
+    { label: tr("Nadechni se"), dur: 4000, scale: 1.32 },
+    { label: tr("Zadrž"), dur: 1400, scale: 1.32 },
+    { label: tr("Vydechni"), dur: 4200, scale: 0.82 }
   ];
 
   // Kruh se plní za dobu cooldownu.
@@ -53,7 +55,7 @@ function runBreath(durationMs, onDone) {
   function step() {
     const elapsed = Date.now() - startedAt;
     if (elapsed >= durationMs) {
-      breathLabel.textContent = 'Teď';
+      breathLabel.textContent = tr("Teď");
       onDone();
       return;
     }
@@ -84,7 +86,7 @@ function showReason() {
 function finishContinue() {
   const reason = reasonInput.value.trim();
   setPhase(phaseDone);
-  el('doneText').textContent = 'Jdi s rozmyslem.';
+  el('doneText').textContent = tr("Jdi s rozmyslem.");
   setTimeout(() => {
     window.mezera.submit({ reason });
   }, 850);
@@ -93,7 +95,7 @@ function finishContinue() {
 function finishAbandon() {
   const reason = reasonInput.value.trim();
   setPhase(phaseDone);
-  el('doneText').textContent = 'Dobrá volba. Ušetřený čas je tvůj.';
+  el('doneText').textContent = tr("Dobrá volba. Ušetřený čas je tvůj.");
   setTimeout(() => {
     window.mezera.abandon({ reason });
   }, 950);
@@ -101,14 +103,16 @@ function finishAbandon() {
 
 // ---------- Boot ----------
 async function boot() {
+  language = (await window.mezera.getConfig()).language || 'en';
+  PauseI18n.apply(document, language);
   target = await window.mezera.getTarget();
-  const label = target && target.label ? target.label : 'aplikace';
-  minChars = (target && target.reasonMinChars) || 20;
-  const cooldownSec = (target && target.cooldownSec) || 8;
+  const label = target && target.label ? target.label : tr("aplikace");
+  minChars = target?.reasonMinChars ?? 20;
+  const cooldownSec = target?.cooldownSec ?? 8;
 
   setAppName(label);
   reasonInput.setAttribute('minlength', String(minChars));
-  reasonInput.placeholder = `Napiš aspoň ${minChars} znaků, popravdě...`;
+  reasonInput.placeholder = tr('Napiš aspoň {count} znaků, popravdě...', { count: minChars });
   updateCounter();
 
   reasonInput.addEventListener('input', updateCounter);

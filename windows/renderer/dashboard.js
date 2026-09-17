@@ -3,6 +3,7 @@
 // Dashboard: nastavení hlídaných appek + statistiky.
 
 let config = null;
+const tr = (text, values) => PauseI18n.tr(config?.language || 'en', text, values);
 
 const $ = (id) => document.getElementById(id);
 const listEl = $('targetList');
@@ -49,6 +50,20 @@ async function persist() {
   config = await window.mezera.saveConfig(config);
 }
 
+function setupLanguage() {
+  PauseI18n.apply(document, config.language);
+  $('languageSelect').value = config.language;
+  $('settingsButton').addEventListener('click', () => $('languageSettings').showModal());
+  $('languageSelect').addEventListener('change', async event => {
+    config.language = event.target.value;
+    await persist();
+    PauseI18n.apply(document, config.language);
+    syncMaster();
+    renderTargets();
+    loadStats();
+  });
+}
+
 // ---------- taby ----------
 function setupTabs() {
   document.querySelectorAll('.tab').forEach((btn) => {
@@ -65,7 +80,7 @@ function setupTabs() {
 // ---------- master + autostart ----------
 function syncMaster() {
   $('masterToggle').checked = !!config.enabled;
-  $('masterText').textContent = config.enabled ? 'Hlídání zapnuto' : 'Hlídání pozastaveno';
+  $('masterText').textContent = config.enabled ? tr("Hlídání zapnuto") : tr("Hlídání pozastaveno");
 }
 function setupMaster() {
   syncMaster();
@@ -86,11 +101,11 @@ function setupAutostart() {
 // ---------- seznam cílů ----------
 function targetSubline(t) {
   const parts = [];
-  parts.push(`nádech ${t.cooldownSec}s`);
-  parts.push(`důvod min. ${t.reasonMinChars} znaků`);
+  parts.push(tr("nádech {seconds}s", { seconds: t.cooldownSec }));
+  parts.push(tr("důvod min. {count} znaků", { count: t.reasonMinChars }));
   const m = [];
-  if (t.match.title.length) m.push(`web: ${t.match.title.join(', ')}`);
-  if (t.match.process.length) m.push(`appka: ${t.match.process.join(', ')}`);
+  if (t.match.title.length) m.push(tr("web: {names}", { names: t.match.title.join(', ') }));
+  if (t.match.process.length) m.push(tr("appka: {names}", { names: t.match.process.join(', ') }));
   if (m.length) parts.push(m.join(' · '));
   return parts.join('  ·  ');
 }
@@ -110,16 +125,16 @@ function buildEditor(t, container) {
   const gapI = h('input', { type: 'number', min: '0', max: '600', value: t.sessionGapSec });
 
   const grid = h('div', { class: 'target-edit' }, [
-    row('Název', '', nameI),
-    row('Nádech (s)', 'kolik vteřin dýchat', coolI),
-    row('Web podle titulku', 'např. youtube, instagram', titleI),
-    row('Appka podle procesu', 'např. whatsapp, discord', procI),
-    row('Min. znaků důvodu', '', minI),
-    row('Klid mezi dotazy (s)', 'nezeptá se znovu, když se vrátíš do', gapI)
+    row(tr("Název"), '', nameI),
+    row(tr("Nádech (s)"), tr("kolik vteřin dýchat"), coolI),
+    row(tr("Web podle titulku"), tr("např. youtube, instagram"), titleI),
+    row(tr("Appka podle procesu"), tr("např. whatsapp, discord"), procI),
+    row(tr("Min. znaků důvodu"), '', minI),
+    row(tr("Klid mezi dotazy (s)"), tr("nezeptá se znovu, když se vrátíš do"), gapI)
   ]);
 
-  const save = h('button', { class: 'btn-fill', text: 'Uložit' });
-  const cancel = h('button', { class: 'btn-quiet', text: 'Zrušit' });
+  const save = h('button', { class: 'btn-fill', text: tr("Uložit") });
+  const cancel = h('button', { class: 'btn-quiet', text: tr("Zrušit") });
   save.addEventListener('click', async () => {
     t.label = nameI.value.trim() || t.label;
     t.match.title = parseCsv(titleI.value);
@@ -139,7 +154,7 @@ function buildEditor(t, container) {
 function renderTargets() {
   listEl.innerHTML = '';
   if (!config.targets.length) {
-    listEl.appendChild(h('div', { class: 'empty', text: 'Zatím žádná appka. Přidej si první níž.' }));
+    listEl.appendChild(h('div', { class: 'empty', text: tr("Zatím žádná appka. Přidej si první níž.") }));
     return;
   }
   for (const t of config.targets) {
@@ -159,8 +174,8 @@ function renderTargets() {
       h('span', { class: 'slider' })
     ]);
 
-    const editLink = h('button', { class: 'link-btn', text: 'Upravit' });
-    const delLink = h('button', { class: 'link-btn danger', text: 'Smazat' });
+    const editLink = h('button', { class: 'link-btn', text: tr("Upravit") });
+    const delLink = h('button', { class: 'link-btn danger', text: tr("Smazat") });
 
     const main = h('div', { class: 'target-main' }, [
       h('div', { class: 'target-dot' }),
@@ -179,7 +194,7 @@ function renderTargets() {
         return;
       }
       open = true;
-      editLink.textContent = 'Zavřít';
+      editLink.textContent = tr("Zavřít");
       buildEditor(t, wrap);
     });
     delLink.addEventListener('click', async () => {
@@ -207,7 +222,7 @@ async function openAddPanel() {
   addPanel.innerHTML = '';
   addPanel.hidden = false;
 
-  const nameI = h('input', { type: 'text', placeholder: 'např. TikTok' });
+  const nameI = h('input', { type: 'text', placeholder: tr("např. TikTok") });
   const titleI = h('input', { type: 'text', placeholder: 'tiktok' });
   const procI = h('input', { type: 'text', placeholder: 'tiktok' });
   const coolI = h('input', { type: 'number', min: '0', max: '120', value: '10' });
@@ -220,20 +235,20 @@ async function openAddPanel() {
     ]);
 
   const grid = h('div', { class: 'panel-grid' }, [
-    fld('Název', '', nameI),
-    fld('Nádech (s)', '', coolI),
-    fld('Web podle titulku okna', 'kus názvu záložky v prohlížeči', titleI),
-    fld('Appka podle procesu', 'kus názvu .exe', procI),
-    fld('Min. znaků důvodu', '', minI)
+    fld(tr("Název"), '', nameI),
+    fld(tr("Nádech (s)"), '', coolI),
+    fld(tr("Web podle titulku okna"), tr("kus názvu záložky v prohlížeči"), titleI),
+    fld(tr("Appka podle procesu"), tr("kus názvu .exe"), procI),
+    fld(tr("Min. znaků důvodu"), '', minI)
   ]);
 
   const openAppsBox = h('div', { class: 'open-apps' }, [
-    h('div', { class: 'open-apps-title', text: 'Právě otevřené appky (klikni a doplní se):' }),
-    h('div', { class: 'chips', text: 'Načítám...' })
+    h('div', { class: 'open-apps-title', text: tr("Právě otevřené appky (klikni a doplní se):") }),
+    h('div', { class: 'chips', text: tr("Načítám...") })
   ]);
 
-  const add = h('button', { class: 'btn-fill', text: 'Přidat' });
-  const cancel = h('button', { class: 'btn-quiet', text: 'Zrušit' });
+  const add = h('button', { class: 'btn-fill', text: tr("Přidat") });
+  const cancel = h('button', { class: 'btn-quiet', text: tr("Zrušit") });
   add.addEventListener('click', async () => {
     const label = nameI.value.trim();
     if (!label) {
@@ -257,9 +272,9 @@ async function openAddPanel() {
     addPanel.hidden = true;
   });
 
-  addPanel.appendChild(h('h3', { text: 'Nová appka nebo web' }));
+  addPanel.appendChild(h('h3', { text: tr("Nová appka nebo web") }));
   addPanel.appendChild(
-    h('p', { class: 'lead', text: 'Stačí vyplnit jedno pole (web nebo appku). Klidně obojí.' })
+    h('p', { class: 'lead', text: tr("Stačí vyplnit jedno pole (web nebo appku). Klidně obojí.") })
   );
   addPanel.appendChild(grid);
   addPanel.appendChild(openAppsBox);
@@ -274,7 +289,7 @@ async function openAddPanel() {
       .filter((a) => a.name && !/mezera|electron/i.test(a.name))
       .slice(0, 24);
     if (!filtered.length) {
-      chips.appendChild(h('span', { class: 'hint', text: 'nic nenačteno' }));
+      chips.appendChild(h('span', { class: 'hint', text: tr("nic nenačteno") }));
     }
     for (const a of filtered) {
       const chip = h('button', { class: 'chip', text: a.name });
@@ -297,10 +312,10 @@ function fmtWhen(ts) {
   const y = new Date(now);
   y.setDate(now.getDate() - 1);
   const yest = d.toDateString() === y.toDateString();
-  const hhmm = d.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
-  if (sameDay) return `dnes ${hhmm}`;
-  if (yest) return `včera ${hhmm}`;
-  return `${d.getDate()}.${d.getMonth() + 1}. ${hhmm}`;
+  const hhmm = d.toLocaleTimeString(config.language === 'cs' ? 'cs-CZ' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
+  if (sameDay) return tr("dnes {time}", { time: hhmm });
+  if (yest) return tr("včera {time}", { time: hhmm });
+  return d.toLocaleString(config.language === 'cs' ? 'cs-CZ' : 'en-GB', { dateStyle: 'short', timeStyle: 'short' });
 }
 
 async function loadStats() {
@@ -342,8 +357,8 @@ function renderSummary(events) {
     ]);
   box.appendChild(
     h('div', { class: 'hero' }, [
-      heroItem(total, 'zásahů celkem'),
-      heroItem(fmtSaved(savedMin), 'ušetřeno (odhad)')
+      heroItem(total, tr("zásahů celkem")),
+      heroItem(fmtSaved(savedMin), tr("ušetřeno (odhad)"))
     ])
   );
 
@@ -354,8 +369,8 @@ function renderSummary(events) {
     ]);
   box.appendChild(
     h('div', { class: 'summary two' }, [
-      tile(abandoned, 'rozmyslel sis to'),
-      tile(top, 'kam nejčastěji')
+      tile(abandoned, tr("rozmyslel sis to")),
+      tile(top, tr("kam nejčastěji"))
     ])
   );
 }
@@ -367,7 +382,7 @@ function renderBars(events) {
   for (const e of events) counts[e.label] = (counts[e.label] || 0) + 1;
   const rows = Object.entries(counts).sort((a, b) => b[1] - a[1]);
   if (!rows.length) {
-    box.appendChild(h('div', { class: 'empty', text: 'Zatím žádná data. Až tě Pause zastaví, uvidíš to tu.' }));
+    box.appendChild(h('div', { class: 'empty', text: tr("Zatím žádná data. Až tě Pause zastaví, uvidíš to tu.") }));
     return;
   }
   const max = rows[0][1];
@@ -389,12 +404,12 @@ function renderTimeline(events) {
   box.innerHTML = '';
   const recent = events.slice(-50).reverse();
   if (!recent.length) {
-    box.appendChild(h('div', { class: 'empty', text: 'Žádné důvody zatím.' }));
+    box.appendChild(h('div', { class: 'empty', text: tr("Žádné důvody zatím.") }));
     return;
   }
   for (const e of recent) {
     const badgeClass = e.outcome === 'abandoned' ? 'badge abandoned' : 'badge continued';
-    const badgeText = e.outcome === 'abandoned' ? 'rozmyslel' : 'vešel';
+    const badgeText = e.outcome === 'abandoned' ? tr("rozmyslel") : tr("vešel");
     const appLine = h('div', { class: 'tl-app', text: e.label + '  ' }, [
       h('span', { class: badgeClass, text: badgeText })
     ]);
@@ -403,7 +418,7 @@ function renderTimeline(events) {
         h('div', { class: 'tl-when', text: fmtWhen(e.ts) }),
         h('div', { class: 'tl-body' }, [
           appLine,
-          h('div', { class: 'tl-reason', text: e.reason || '(bez důvodu)' })
+          h('div', { class: 'tl-reason', text: e.reason || tr("(bez důvodu)") })
         ])
       ])
     );
@@ -418,6 +433,7 @@ $('clearStats').addEventListener('click', async () => {
 // ---------- boot ----------
 async function init() {
   config = await window.mezera.getConfig();
+  setupLanguage();
   setupTabs();
   setupMaster();
   setupAutostart();
@@ -427,7 +443,10 @@ async function init() {
   window.mezera.onStatsChanged(() => loadStats());
   window.mezera.onConfigChanged((c) => {
     config = c;
+    PauseI18n.apply(document, config.language);
+    $('languageSelect').value = config.language;
     syncMaster();
+    loadStats();
     renderTargets();
   });
 }

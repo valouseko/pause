@@ -64,6 +64,7 @@ function defaultConfig() {
     version: 1,
     enabled: true,
     pollMs: 900,
+    language: 'en',
     autostart: false,
     targets: defaultTargets()
   };
@@ -112,6 +113,7 @@ class Store {
     }
     if (typeof this.config.pollMs !== 'number') this.config.pollMs = 900;
     if (typeof this.config.enabled !== 'boolean') this.config.enabled = true;
+    if (!['en', 'cs'].includes(this.config.language)) this.config.language = 'en';
   }
 
   getConfig() {

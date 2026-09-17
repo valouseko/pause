@@ -17,6 +17,16 @@ body {
 }
 
 /* ---------- Topbar ---------- */
+.header-actions { display: flex; align-items: center; gap: 18px; }
+.settings-button { display: grid; place-items: center; width: 44px; height: 44px; color: var(--ink-soft); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; cursor: pointer; }
+.settings-button:hover { color: var(--ink); border-color: var(--blue); }
+.language-dialog { max-width: 380px; padding: 28px; border: 1px solid var(--line-strong); border-radius: 22px; background: var(--surface); color: var(--ink); }
+.language-dialog::backdrop { background: rgba(0, 0, 0, .65); }
+.language-dialog h2 { margin-top: 0; }
+.language-dialog label { display: block; margin-bottom: 10px; }
+.language-dialog select { width: 100%; padding: 12px; background: var(--bg-deep); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 10px; font: inherit; }
+.language-dialog p { color: var(--ink-soft); line-height: 1.6; }
+:focus-visible { outline: 2px solid var(--blue-strong); outline-offset: 3px; }
 .topbar {
   display: flex;
   align-items: center;

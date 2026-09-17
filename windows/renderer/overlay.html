@@ -18,7 +18,7 @@
           </svg>
           <div class="orb" id="orb"></div>
         </div>
-        <p class="breath-label" id="breathLabel">Nadechni se</p>
+        <p class="breath-label" id="breathLabel" data-i18n="Nadechni se">Nadechni se</p>
         <p class="breath-sub">
           Dej si vteřinu, než otevřeš <b id="appNameBreath">appku</b>.
         </p>
@@ -28,7 +28,7 @@
       <section class="phase phase-reason" id="phaseReason">
         <div class="mini-orb"></div>
         <h1 class="question">Proč jdeš do <span id="appNameQ">appky</span>?</h1>
-        <p class="question-sub">Napiš to popravdě. Uvidíš to pak ve statistikách.</p>
+        <p class="question-sub" data-i18n="Napiš to popravdě. Uvidíš to pak ve statistikách.">Napiš to popravdě. Uvidíš to pak ve statistikách.</p>
         <div class="field">
           <textarea
             id="reasonInput"
@@ -44,7 +44,7 @@
           <button class="btn btn-primary" id="continueBtn" disabled>
             Pokračovat do <span id="appNameBtn">appky</span>
           </button>
-          <button class="btn btn-ghost" id="abandonBtn">Rozmyslel jsem si to</button>
+          <button class="btn btn-ghost" id="abandonBtn" data-i18n="Rozmyslel jsem si to">Rozmyslel jsem si to</button>
         </div>
       </section>
 
@@ -55,10 +55,11 @@
             <path class="done-check" d="M14 27 L23 36 L39 18" />
           </svg>
         </div>
-        <p class="done-text" id="doneText">Jdi s rozmyslem.</p>
+        <p class="done-text" id="doneText" data-i18n="Jdi s rozmyslem.">Jdi s rozmyslem.</p>
       </section>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="overlay.js"></script>
   </body>
 </html>
