@@ -57,6 +57,10 @@ jobs:
           python3 tests/check_strings.py
           ./gradlew assembleRelease --stacktrace
 
+      - name: Release build memory before emulator tests
+        working-directory: android
+        run: ./gradlew --stop
+
       - name: Download previous release for upgrade test
         run: curl --fail --location "$APK_URL" --output previous.apk
 
@@ -71,6 +75,8 @@ jobs:
         with:
           api-level: 28
           arch: x86_64
+          ram-size: 2048M
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
           disable-animations: true
           script: python3 android/tests/language_smoke.py
 
@@ -79,6 +85,8 @@ jobs:
         with:
           api-level: 35
           arch: x86_64
+          ram-size: 2048M
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
           disable-animations: true
           script: python3 android/tests/language_smoke.py
 

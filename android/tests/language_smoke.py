@@ -72,8 +72,6 @@ def check_switch():
 
 
 try:
-    adb('shell', 'wm', 'size', '1080x2400')
-    adb('shell', 'wm', 'density', '320')
     adb('shell', 'input', 'keyevent', '82')
     adb('install', '-r', '-g', 'previous.apk')
     launch()
@@ -110,7 +108,14 @@ try:
     screenshot('english-statistics')
     print(f'PASS API {API}: upgrade defaults to English, CZ/EN switch, process restart, reinstall, preserved monitoring preference, stats UI')
 except Exception:
-    (OUT / f'failure-{API}.xml').write_bytes(ET.tostring(tree()))
-    screenshot('failure')
-    (OUT / f'logcat-{API}.txt').write_text(adb('logcat', '-d', '-t', '1500'), encoding='utf-8')
+    # Preserve the original failure even if the emulator itself has stopped.
+    for capture in (
+        lambda: (OUT / f'failure-{API}.xml').write_bytes(ET.tostring(tree())),
+        lambda: screenshot('failure'),
+        lambda: (OUT / f'logcat-{API}.txt').write_text(adb('logcat', '-d', '-t', '1500'), encoding='utf-8'),
+    ):
+        try:
+            capture()
+        except Exception as diagnostic_error:
+            print(f'Diagnostic unavailable: {diagnostic_error}', file=sys.stderr)
     raise

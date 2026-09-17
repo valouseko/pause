@@ -539,14 +539,13 @@ private fun UpdateCard(
         }
 
         else -> {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .card()
-                    .padding(horizontal = 18.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 18.dp, vertical = 16.dp)
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                Column {
                     Text(
                         stringResource(R.string.version, Updater.currentVersionName()),
                         color = Ink,
@@ -559,7 +558,7 @@ private fun UpdateCard(
                         fontSize = 13.sp
                     )
                 }
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.height(12.dp))
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(30.dp))
