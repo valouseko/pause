@@ -25,6 +25,20 @@ Funguje **na Windows i na Androidu**, napříč libovolnými appkami/weby. Tmav�
 
 ## Android - stažení a auto-update
 
+### Jazyk aplikace
+
+Android i Windows mají vpravo nahoře ozubené kolečko **Settings / Nastavení**.
+V něm vyber **Language / Jazyk → English / Čeština**. Výchozí jazyk nové jazykové
+verze je angličtina; ruční volba se ukládá a zůstává po restartu i aktualizaci.
+Přeložené jsou obrazovky, dechová pauza, statistiky a systémová upozornění na update.
+Vlastní názvy aplikací a napsané důvody se nepřekládají ani nepřepisují.
+
+Android používá string resources a AppCompat pro podporu Androidu 8 až 12;
+na Androidu 13+ respektuje i jazyk zvolený v systémovém nastavení aplikace.
+Windows ukládá `language` do existujícího `config.json`.
+
+### Aktualizace
+
 APK stáhneš z landing page nebo z Releases. Po instalaci appka **sama hlídá aktualizace**:
 při otevření zkontroluje `version.json` v Releases a nabídne stažení + instalaci nové verze.
 Protože je APK podepsané **stálým klíčem**, nová verze se nainstaluje přes starou -

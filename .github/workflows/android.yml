@@ -53,7 +53,9 @@ jobs:
           STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --stacktrace
+        run: |
+          python3 tests/check_strings.py
+          ./gradlew assembleRelease --stacktrace
 
       - name: Download previous release for upgrade test
         run: curl --fail --location "$APK_URL" --output previous.apk

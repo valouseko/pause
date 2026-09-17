@@ -20,14 +20,14 @@ object Notifier {
         val localized = AppLanguage.localizedContext(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mgr = context.getSystemService(NotificationManager::class.java)
-                val ch = NotificationChannel(
-                    CHANNEL_ID,
-                    localized.getString(R.string.updates),
-                    NotificationManager.IMPORTANCE_DEFAULT
-                ).apply {
-                    description = localized.getString(R.string.updates_description)
-                }
-                mgr.createNotificationChannel(ch)
+            val ch = NotificationChannel(
+                CHANNEL_ID,
+                localized.getString(R.string.updates),
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = localized.getString(R.string.updates_description)
+            }
+            mgr.createNotificationChannel(ch)
         }
     }
 

@@ -12,6 +12,9 @@ Jazyk se vybírá v pořadí: platné `?lang=cs` / `?lang=en`, uložená ruční
 
 Anglický odkaz ke sdílení: https://valouseko.github.io/pause/?lang=en
 
+Android a Windows mají vlastní uložený jazyk v Settings / Nastavení. Volba na webu
+jej nemění. Instalační návod odpovídá novému anglickému rozhraní a uvádí i české názvy.
+
 ## Kontrola změn
 
 Otevři web přes lokální HTTP server a zkontroluj:

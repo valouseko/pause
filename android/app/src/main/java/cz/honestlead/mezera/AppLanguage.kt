@@ -38,6 +38,7 @@ object AppLanguage {
     fun select(context: Context, language: String) {
         Store.get(context).language = language
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language))
+        cz.honestlead.mezera.update.Notifier.ensureChannel(context)
     }
 
     // Workers use an application context; on older Android it does not inherit activity locales.
