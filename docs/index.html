@@ -4,404 +4,139 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pause - vteřina na rozmyšlenou</title>
-  <meta name="description" content="Pause ti dá vteřinu na nádech a otázku 'proč sem jdeš?' předtím, než otevřeš rozptylující appku. Zdarma, data zůstávají v telefonu.">
+  <meta name="description" content="Pause ti dá vteřinu na nádech, než otevřeš rozptylující appku. Zdarma pro Android. Podrobný návod k instalaci podle telefonu.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-top: #1B2130;
-      --bg-bottom: #0E1117;
-      --text: #F1F4FA;
-      --muted: #A6AEC0;
-      --card: #161B26;
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent: #6D7BFF;
-      --accent-2: #9A7BFF;
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-
-    body {
-      font-family: "Inter", system-ui, "Segoe UI", sans-serif;
-      color: var(--text);
-      background: linear-gradient(180deg, var(--bg-top) 0%, #141926 45%, var(--bg-bottom) 100%);
-      background-attachment: fixed;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-
-    .wrap {
-      width: 100%;
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    a { color: inherit; }
-
-    /* ---------- HERO ---------- */
-    .hero {
-      text-align: center;
-      padding: 72px 0 40px;
-    }
-
-    .breath {
-      width: 168px;
-      height: 168px;
-      margin: 0 auto 40px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 42% 38%,
-        #ffffff 0%,
-        #C9D5FF 26%,
-        #7F9BFF 58%,
-        #5570F4 100%);
-      box-shadow:
-        0 0 60px rgba(109, 123, 255, 0.45),
-        0 0 120px rgba(122, 130, 255, 0.25),
-        inset 0 -8px 24px rgba(40, 60, 160, 0.35);
-      animation: breathe 4s ease-in-out infinite;
-    }
-
-    @keyframes breathe {
-      0%, 100% { transform: scale(0.9); }
-      50%      { transform: scale(1.05); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .breath { animation: none; }
-    }
-
-    h1 {
-      font-size: clamp(2.6rem, 9vw, 4.2rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin: 0 0 14px;
-      line-height: 1.05;
-    }
-
-    .subtitle {
-      font-size: clamp(1.05rem, 3.4vw, 1.3rem);
-      color: var(--muted);
-      max-width: 540px;
-      margin: 0 auto 34px;
-    }
-
-    .subtitle b {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    /* ---------- CTA ---------- */
-    .cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 17px 38px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 30px;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-      box-shadow:
-        0 10px 30px rgba(109, 123, 255, 0.45),
-        0 2px 8px rgba(90, 100, 240, 0.4);
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .cta:hover {
-      transform: translateY(-2px);
-      box-shadow:
-        0 16px 40px rgba(109, 123, 255, 0.55),
-        0 3px 10px rgba(90, 100, 240, 0.5);
-    }
-
-    .cta:active { transform: translateY(0); }
-
-    .cta svg { flex: none; }
-
-    .cta-note {
-      margin-top: 16px;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    /* ---------- SECTIONS ---------- */
-    section { padding: 34px 0; }
-
-    h2 {
-      font-size: clamp(1.5rem, 5vw, 2rem);
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      margin: 0 0 8px;
-      text-align: center;
-    }
-
-    .section-lead {
-      text-align: center;
-      color: var(--muted);
-      max-width: 520px;
-      margin: 0 auto 34px;
-    }
-
-    /* ---------- HOW IT WORKS ---------- */
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-
-    .step {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 22px;
-      padding: 28px 24px;
-    }
-
-    .step-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: #fff;
-      background: linear-gradient(135deg, rgba(109, 123, 255, 0.9), rgba(154, 123, 255, 0.9));
-      margin-bottom: 16px;
-    }
-
-    .step h3 {
-      font-size: 1.12rem;
-      font-weight: 600;
-      margin: 0 0 6px;
-    }
-
-    .step p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.97rem;
-    }
-
-    /* ---------- INSTALL ---------- */
-    .install-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 22px;
-      padding: 12px 30px;
-    }
-
-    .install-list {
-      list-style: none;
-      counter-reset: install;
-      margin: 0;
-      padding: 0;
-    }
-
-    .install-list li {
-      counter-increment: install;
-      position: relative;
-      padding: 20px 0 20px 56px;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .install-list li:last-child { border-bottom: none; }
-
-    .install-list li::before {
-      content: counter(install);
-      position: absolute;
-      left: 0;
-      top: 18px;
-      width: 34px;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--accent-2);
-      background: rgba(122, 130, 255, 0.12);
-      border: 1px solid rgba(122, 130, 255, 0.28);
-    }
-
-    .install-list strong {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-
-    .install-list span {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    /* ---------- NOTE ---------- */
-    .note {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      background: rgba(109, 123, 255, 0.07);
-      border: 1px solid rgba(109, 123, 255, 0.18);
-      border-radius: 20px;
-      padding: 20px 24px;
-      color: var(--muted);
-      font-size: 0.96rem;
-      margin-top: 26px;
-    }
-
-    .note b { color: var(--text); font-weight: 600; }
-    .note .dot {
-      flex: none;
-      width: 10px;
-      height: 10px;
-      margin-top: 8px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 12px rgba(109, 123, 255, 0.6);
-    }
-
-    /* ---------- FOOTER ---------- */
-    footer {
-      text-align: center;
-      padding: 46px 0 60px;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    footer a.gh {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text);
-      text-decoration: none;
-      padding: 10px 20px;
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      transition: border-color 0.18s ease, background 0.18s ease;
-    }
-
-    footer a.gh:hover {
-      border-color: rgba(122, 130, 255, 0.4);
-      background: rgba(122, 130, 255, 0.08);
-    }
-
-    footer .made {
-      margin-top: 18px;
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
-
-    /* ---------- RESPONSIVE ---------- */
-    @media (max-width: 680px) {
-      .steps { grid-template-columns: 1fr; }
-      .hero { padding: 54px 0 30px; }
-      .breath { width: 140px; height: 140px; margin-bottom: 32px; }
-      .install-card { padding: 6px 20px; }
-      .cta { width: 100%; justify-content: center; }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
+  <script src="site.js" defer></script>
 </head>
 <body>
   <div class="wrap">
-
-    <!-- HERO -->
+    <nav class="topbar" aria-label="Language / Jazyk">
+      <a class="wordmark" href="#">Pause</a>
+      <div class="language-switch">
+        <button type="button" data-language="cs" lang="cs" aria-label="Česky" aria-pressed="true">CZ</button>
+        <button type="button" data-language="en" lang="en" aria-label="English" aria-pressed="false">EN</button>
+      </div>
+    </nav>
     <header class="hero">
       <div class="breath" aria-hidden="true"></div>
       <h1>Pause</h1>
-      <p class="subtitle">
-        Vteřina na rozmyšlenou, než otevřeš rozptylující appku.
-        <b>Nádech a jedna otázka: proč sem vlastně jdeš?</b>
-        Než mrkneš, půlka scrollování se nekoná.
-      </p>
-      <a class="cta" href="https://github.com/valouseko/pause/releases/latest/download/Pause.apk">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<p data-i18n="subtitle" class="subtitle">Vteřina na rozmyšlenou, než otevřeš rozptylující appku. <b>Nádech a jedna otázka: proč sem vlastně jdeš?</b> Dej si prostor rozhodnout se vědomě.</p><a class="cta" href="https://github.com/valouseko/pause/releases/latest/download/Pause.apk"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M12 3v11m0 0l-4-4m4 4l4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Stáhnout pro Android
-      </a>
-      <div class="cta-note">Zdarma. Funguje i na Windows.</div>
-    </header>
-
-    <!-- HOW IT WORKS -->
-    <section id="jak">
-      <h2>Jak to funguje</h2>
-      <p class="section-lead">Žádné blokování ani mazání appek. Jen malá pauza mezi impulzem a klikem.</p>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <h3>Otevřeš hlídanou appku</h3>
-          <p>WhatsApp, Instagram, YouTube - co si sám vybereš, že tě moc žere.</p>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <h3>Pause tě na chvíli zastaví</h3>
-          <p>Dá ti nádech a zeptá se: proč sem teď jdeš? Prostor srovnat si hlavu.</p>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <h3>Rozhodneš se vědomě</h3>
-          <p>Napíšeš důvod a jdeš dál, nebo to necháš být. A vidíš statistiky: kolikrát tě zastavila, kolik času sis ušetřil a proč tam nejčastěji chodíš.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- INSTALL -->
-    <section id="instalace">
-      <h2>Instalace</h2>
-      <p class="section-lead">Čtyři kroky, zvládneš to za dvě minuty.</p>
-      <div class="install-card">
-        <ol class="install-list">
-          <li>
-            <strong>Stáhni APK</strong>
-            <span>Klikni na tlačítko nahoře. Soubor Pause.apk se stáhne do telefonu.</span>
-          </li>
-          <li>
-            <strong>Povol instalaci z neznámých zdrojů</strong>
-            <span>Telefon se zeptá, jestli chceš appku mimo Obchod Play nainstalovat. Potvrď to.</span>
-          </li>
-          <li>
-            <strong>Nainstaluj</strong>
-            <span>Ťukni na stažený soubor a dej Instalovat.</span>
-          </li>
-          <li>
-            <strong>V appce zapni Přístupnost a Překrytí ostatních appek</strong>
-            <span>Pause tě sama provede. Bez těchhle dvou oprávnění neumí poznat, že otevíráš hlídanou appku, a zobrazit pauzu.</span>
-          </li>
-        </ol>
-      </div>
-
-      <!-- NOTE -->
-      <div class="note">
-        <span class="dot" aria-hidden="true"></span>
-        <div>
-          Pause je <b>zdarma</b> a <b>všechna data zůstávají v tvém telefonu</b> - nic se nikam neposílá.
-          Appka není v Google Play, proto to stahování z neznámých zdrojů. Nic za tím nehledej, jen to zatím nejde jinak.
-        </div>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer>
-      <a class="gh" href="https://github.com/valouseko/pause">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        </svg><span data-i18n="download">Stáhnout pro Android</span></a>
+<p data-i18n="compatibility" class="cta-note">Zdarma · Android 8.0 a novější · Soubor Pause.apk</p>
+<div class="hero-links"><a data-i18n="guideLink" href="#instalace">Jak to nainstalovat</a><a data-i18n="iphoneLink" href="#iphone">Mám iPhone</a></div>
+</header>
+<main>
+<section id="jak">
+<h2 data-i18n="howTitle">Jak to funguje</h2>
+<p data-i18n="howLead" class="section-lead">Žádné blokování ani mazání appek. Jen malá pauza mezi impulzem a klikem.</p>
+<div class="steps">
+<div class="step">
+<div class="step-num">1</div>
+<h3 data-i18n="how1Title">Otevřeš hlídanou appku</h3>
+<p data-i18n="how1">WhatsApp, Instagram, YouTube - sám si vybereš, kde chceš mít víc kontroly nad svým časem.</p></div>
+<div class="step">
+<div class="step-num">2</div>
+<h3 data-i18n="how2Title">Pause tě na chvíli zastaví</h3>
+<p data-i18n="how2">Dá ti nádech a zeptá se: proč sem teď jdeš? Prostor srovnat si hlavu.</p></div>
+<div class="step">
+<div class="step-num">3</div>
+<h3 data-i18n="how3Title">Rozhodneš se vědomě</h3>
+<p data-i18n="how3">Napíšeš důvod a jdeš dál, nebo to necháš být. Ve statistikách uvidíš své pauzy, důvody a odhad ušetřeného času.</p></div></div>
+</section>
+<section id="instalace">
+<h2 data-i18n="installTitle">Od stažení k první pauze</h2>
+<p data-i18n="installLead" class="section-lead">Vezmi si telefon a projdi těchto šest kroků. Pod nimi najdeš doplnění přímo pro svou značku.</p>
+<div class="install-card"><ol class="install-list">
+<li><strong data-i18n="install1Title">Otevři stránku v prohlížeči telefonu</strong><span data-i18n="install1">Použij Chrome, Samsung Internet nebo jiný běžný prohlížeč. Pokud jsi přišel z Instagramu, Messengeru nebo jiné appky, v její nabídce vyber <b>Otevřít v prohlížeči</b>.</span></li>
+<li><strong data-i18n="install2Title">Stáhni a otevři Pause.apk</strong><span data-i18n="install2">Ťukni na <a href="https://github.com/valouseko/pause/releases/latest/download/Pause.apk">Stáhnout pro Android</a> a počkej na dokončení. Soubor otevři z oznámení o stažení, z nabídky <b>Stažené soubory</b> v prohlížeči nebo ze <b>Soubory / Moje soubory → Stažené</b>. APK je instalační soubor pro Android.</span></li>
+<li><strong data-i18n="install3Title">Povol instalaci a vrať se k souboru</strong><span data-i18n="install3">Pokud telefon instalaci zablokuje, ťukni na <b>Nastavení → Povolit z tohoto zdroje</b>. Povol jen appku, ze které soubor otevíráš, například Chrome nebo Moje soubory. Vrať se zpět k Pause.apk a zvol <b>Instalovat → Otevřít</b>. Po instalaci můžeš toto povolení zase vypnout.</span></li>
+<li><strong data-i18n="install4Title">Zapni hlídání appek (Přístupnost)</strong><span data-i18n="install4">V Pause ťukni na <b>Otevřít nastavení</b> u karty <b>Zapni hlídání appek</b>. V Přístupnosti najdi <b>Stažené / Nainstalované aplikace → Pause - hlídání appek</b>, službu zapni a potvrď systémový dialog. Pokud vidíš „Omezené nastavení“, použij <a href="#omezene">postup níže</a>. Pak se vrať do Pause.</span></li>
+<li><strong data-i18n="install5Title">Povol zobrazení přes ostatní appky</strong><span data-i18n="install5">V Pause ťukni na <b>Povolit překrytí</b>. V systémovém nastavení vyber Pause a zapni <b>Zobrazovat přes jiné aplikace / Zobrazit navrchu</b>. Vrať se do Pause. Tohle oprávnění umožňuje zobrazit pauzu přes právě otevřenou appku.</span></li>
+<li><strong data-i18n="install6Title">Vyber appku a vyzkoušej první pauzu</strong><span data-i18n="install6">Na záložce <b>Appky</b> zapni třeba Instagram a zkontroluj, že je zapnutý i hlavní přepínač Pause. Vrať se na plochu a otevři vybranou appku. Měla by se objevit dechová pauza. Pokud později přestane fungovat, zkontroluj nastavení baterie pro svou značku níže.</span></li>
+</ol></div>
+<div class="note"><span class="dot" aria-hidden="true"></span>
+<div data-i18n="appLanguage"><b>V aplikaci můžeš ještě narazit na původní název Mezera.</b> Je to pořád Pause. Web i návod jsou česky a anglicky, rozhraní samotné aplikace je zatím česky.</div></div>
+</section>
+<section id="telefony">
+<h2 data-i18n="phonesTitle">Vyber svůj telefon</h2>
+<p data-i18n="phonesLead" class="section-lead">Základní instalace je stejná. Tady jsou rozdíly, které tě mohou zdržet. Názvy nabídek se liší podle verze systému; pomůže i hledání v Nastavení.</p>
+<details id="samsung"><summary><span data-i18n="samsungTitle">Samsung Galaxy</span></summary>
+<div class="detail-body">
+<p data-i18n="samsungInstall"><b>Instalace:</b> v Nastavení vyhledej <b>Instalovat neznámé aplikace</b> a povol prohlížeč nebo Moje soubory, odkud APK otevíráš.</p>
+<p data-i18n="samsungBlocker"><b>Pokud tě zastaví Automatické blokování (Auto Blocker):</b> otevři <b>Nastavení → Zabezpečení a soukromí → Automatické blokování</b>. Pro instalaci důvěryhodného APK ho můžeš dočasně vypnout a po instalaci zase zapnout. Pokud se omezení vrátí při další instalaci nebo aktualizaci, řiď se zobrazeným dialogem.</p>
+<p data-i18n="samsungAccess"><b>Hlídání:</b> v <b>Nastavení → Usnadnění / Přístupnost → Nainstalované aplikace</b> zapni službu Pause. Překrytí najdeš hledáním <b>Zobrazit navrchu</b>.</p>
+<p data-i18n="samsungBattery"><b>Když Pause po čase přestane hlídat:</b> v <b>Nastavení → Baterie → Limity využití na pozadí → Nikdy automaticky neuspávané aplikace</b> přidej Pause. Na starších telefonech je Baterie pod <b>Péče o baterii a zařízení</b>. Zkontroluj, že Pause není mezi hluboce spícími aplikacemi.</p>
+<p data-i18n="samsungSource">Nápověda Samsung: <a href="https://www.samsung.com/us/support/troubleshoot/TSG10001914/">instalace a Auto Blocker</a> · <a href="https://www.samsung.com/ca/support/mobile-devices/galaxy-phone-sleeping-apps/">uspávání aplikací</a>.</p></div>
+</details>
+<details id="xiaomi"><summary><span data-i18n="xiaomiTitle">Xiaomi / Redmi / POCO</span></summary>
+<div class="detail-body">
+<p data-i18n="xiaomiInstall"><b>Instalace a oprávnění:</b> projdi šest kroků výše. V Nastavení hledej <b>Instalovat neznámé aplikace</b> a <b>Přístupnost</b> (často pod <b>Další nastavení</b>). Zapni službu Pause i překrytí přes tlačítka v aplikaci.</p>
+<p data-i18n="xiaomiStart"><b>Automatické spuštění:</b> na HyperOS bývá <b>Nastavení → Aplikace → Oprávnění → Automatické spuštění na pozadí</b>. Povol Pause. Na MIUI hledej <b>Automatické spuštění</b>.</p>
+<p data-i18n="xiaomiBattery"><b>Baterie:</b> podrž ikonu Pause → <b>Informace o aplikaci → Spořič baterie → Bez omezení</b>, pokud tuto možnost telefon nabízí. Když pauza nevyskočí, zkontroluj také další oprávnění pro zobrazení oken na pozadí. Měň je jen pro Pause.</p>
+<p data-i18n="xiaomiSource">Nápověda Xiaomi: <a href="https://www.mi.com/global/support/faq/details/KA-507611/">automatické spuštění</a>.</p></div>
+</details>
+<details id="pixel"><summary><span data-i18n="pixelTitle">Google Pixel / Motorola / Nokia / další Androidy</span></summary>
+<div class="detail-body">
+<p data-i18n="pixelInstall"><b>Instalace:</b> v Nastavení vyhledej <b>Instalovat neznámé aplikace</b> (obvykle <b>Aplikace → Zvláštní přístup aplikací</b>). Povol appku, ze které otevíráš Pause.apk, a vrať se k instalaci.</p>
+<p data-i18n="pixelAccess"><b>Oprávnění:</b> použij obě tlačítka přímo v Pause. Služba bývá v <b>Přístupnost → Stažené aplikace → Pause</b>. Pokud ji Android nepovolí zapnout, otevři níže návod <b>Omezené nastavení</b>.</p>
+<p data-i18n="pixelBattery"><b>Pokud hlídání vypadává:</b> podrž ikonu Pause → <b>Informace o aplikaci → Využití baterie aplikací / Baterie</b>. Povol běh na pozadí, případně zvol <b>Bez omezení</b>, pokud je tato volba dostupná.</p></div>
+</details>
+<details id="oneplus"><summary><span data-i18n="oneplusTitle">OnePlus / OPPO / realme</span></summary>
+<div class="detail-body">
+<p data-i18n="oneplusInstall"><b>Nejdřív základní postup:</b> nainstaluj APK a přes Pause zapni Přístupnost i překrytí. Pokud nemůžeš najít instalaci APK, v Nastavení hledej <b>Instalovat neznámé aplikace</b>.</p>
+<p data-i18n="oneplusBattery"><b>Běh na pozadí:</b> podrž ikonu Pause → <b>Informace o aplikaci → Využití baterie</b> a hledej <b>Povolit aktivitu na pozadí</b>. Některé verze mají tuto volbu pod <b>Baterie → Správa baterie aplikací</b>. Pokud je k dispozici automatické spuštění, povol ho pro Pause. Názvy se mezi OxygenOS, ColorOS a realme UI liší.</p></div>
+</details>
+<details id="huawei"><summary><span data-i18n="huaweiTitle">Huawei / Honor</span></summary>
+<div class="detail-body">
+<p data-i18n="huaweiCompatibility"><b>Nejdřív ověř systém:</b> tento APK potřebuje podporu aplikací pro Android 8.0 nebo novější. Na systému bez podpory Android APK (například HarmonyOS NEXT) ho nenainstaluješ.</p>
+<p data-i18n="huaweiBattery"><b>Po základní instalaci a povolení obou oprávnění:</b> v Nastavení vyhledej <b>Spouštění aplikací</b>. U Pause vypni automatickou správu a zapni <b>Automatické spuštění, Sekundární spuštění a Spuštění na pozadí</b>, pokud jsou dostupné. Na některých modelech je nabídka v aplikaci <b>Správce telefonu / Optimalizátor</b>.</p>
+<p data-i18n="huaweiSource">Nápověda Huawei: <a href="https://consumer.huawei.com/uk/support/content/en-gb00428704/">běh aplikací na pozadí</a>.</p></div>
+</details>
+<div id="iphone" class="note"><span class="dot" aria-hidden="true"></span>
+<div>
+<h3 data-i18n="iphoneTitle">iPhone / iPad</h3>
+<p data-i18n="iphoneBody"><b>Pause zatím pro iOS ani iPadOS není.</b> Soubor Pause.apk je jen pro Android. Ani přidání této stránky na plochu nenainstaluje funkční Pause pro iPhone. Až bude iOS verze dostupná, najdeš ji na této stránce.</p></div></div>
+</section>
+<section id="pomoc">
+<h2 data-i18n="helpTitle">Když se něco zasekne</h2>
+<p data-i18n="helpLead" class="section-lead">Nejčastější zádrhele a co s nimi.</p>
+<details id="omezene"><summary><span data-i18n="omezeneTitle">„Omezené nastavení“: nejde zapnout Přístupnost</span></summary>
+<div class="detail-body">
+<p data-i18n="restrictedIntro">Android 13 a novější může u APK tuto možnost chránit. Pokud jsi APK stáhl z této stránky a aplikaci důvěřuješ:</p><ol data-i18n="restrictedSteps">
+<li>Otevři <b>Nastavení telefonu → Aplikace → Pause</b> (případně nejdřív Zobrazit všechny aplikace).</li>
+<li>Ťukni na <b>tři tečky vpravo nahoře → Povolit omezená nastavení</b> a potvrď PINem nebo otiskem, pokud je vyžadován.</li>
+<li>Vrať se do <b>Přístupnosti</b> a službu Pause zkus zapnout znovu.</li>
+</ol>
+<p data-i18n="restrictedMissing">Když volba chybí, nejdřív zkus službu zapnout, zavři hlášku a znovu otevři informace o aplikaci. Postup se liší podle telefonu. Na spravovaném pracovním telefonu může změnu blokovat správce. <a href="https://support.google.com/android/answer/12623953">Oficiální nápověda Androidu</a>.</p></div>
+</details>
+<details id="stahovani"><summary><span data-i18n="stahovaniTitle">Soubor se nestáhl nebo ho nemůžu najít</span></summary>
+<div class="detail-body">
+<p data-i18n="downloadHelp">Otevři odkaz v běžném prohlížeči mimo sociální sítě. Zkontroluj připojení a volné místo, potom <b>Stažené soubory</b> v prohlížeči nebo složku <b>Download / Stažené</b> v Souborech. Pokud odkaz nefunguje, zkus <a href="https://github.com/valouseko/pause/releases/latest">GitHub Releases → Assets → Pause.apk</a>. Nestahuj položku Source code.</p></div>
+</details>
+<details id="blokace"><summary><span data-i18n="blokaceTitle">Telefon varuje před APK nebo blokuje instalaci</span></summary>
+<div class="detail-body">
+<p data-i18n="blockedHelp">U souboru mimo Google Play může prohlížeč zobrazit obecné upozornění. Ověř, že stahuješ <b>Pause.apk z github.com/valouseko/pause</b>. Pokud Play Protect nabídne kontrolu, nech ji proběhnout. Při konkrétním nálezu škodlivé aplikace instalaci zastav a pošli znění hlášky do <a href="https://github.com/valouseko/pause/issues">GitHub Issues</a>. Play Protect kvůli instalaci nevypínej. Pro hlášku Auto Blocker použij <a href="#samsung">postup pro Samsung</a>.</p></div>
+</details>
+<details id="nefunguje"><summary><span data-i18n="nefungujeTitle">Je nainstalováno, ale pauza se neukazuje</span></summary>
+<div class="detail-body">
+<p data-i18n="notWorking">Zkontroluj hlavní přepínač Pause, vybranou appku na záložce <b>Appky</b> a obě oprávnění. Po ručním vynuceném ukončení Pause ji znovu otevři. Pokud problém vznikl po restartu, ověř znovu službu v Přístupnosti. Jestli hlídání mizí až po delší době, projdi baterii a automatické spuštění v sekci pro svou značku.</p></div>
+</details>
+<details id="aktualizace"><summary><span data-i18n="aktualizaceTitle">Jak aktualizovat a nepřijít o statistiky</span></summary>
+<div class="detail-body">
+<p data-i18n="updateHelp">V Pause otevři kartu <b>Aktualizace</b> a postupuj podle nabídky. Pokud si instalátor vyžádá povolení instalací, tentokrát ho povol pro <b>Pause</b>. Nové oficiální APK instaluj přes stávající aplikaci. <b>Starou verzi neodinstalovávej a nemaž její data</b>, tím bys přišel o uložené statistiky. Když aktualizace hlásí konflikt balíčku nebo podpisu, pošli hlášku do <a href="https://github.com/valouseko/pause/issues">GitHub Issues</a>.</p></div>
+</details>
+<div class="note"><span class="dot" aria-hidden="true"></span>
+<div data-i18n="privacy"><b>Zdarma, bez účtu.</b> Statistiky a důvody použití zůstávají v telefonu. Kontrola aktualizací se připojuje ke GitHubu; když sám odešleš zpětnou vazbu, odešle se její text, model telefonu a verze aplikace a Androidu.</div></div>
+</section>
+</main>
+<footer>
+<p data-i18n="windows">Používáš Windows? <a href="https://github.com/valouseko/pause/tree/master/windows#readme">Návod pro počítač najdeš na GitHubu.</a></p><a class="gh" href="https://github.com/valouseko/pause"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.05 0-1.12.39-2.03 1.03-2.74-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.3 9.3 0 015 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.71 1.03 1.62 1.03 2.74 0 3.92-2.34 4.79-4.57 5.04.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.03 10.03 0 0022 12.25C22 6.58 17.52 2 12 2z"/>
-        </svg>
-        Kód a novinky na GitHubu
-      </a>
-      <div class="made">Pause - malá appka, co ti vrací pozornost.</div>
-    </footer>
-
-  </div>
-</body>
-</html>
+        </svg><span data-i18n="github">Kód a novinky na GitHubu</span></a>
+<div data-i18n="made" class="made">Pause - malá appka, co ti vrací pozornost.</div>
+</footer></div></body></html>
