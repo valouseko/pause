@@ -557,6 +557,11 @@ private fun UpdateCard(
                         color = InkFaint,
                         fontSize = 13.sp
                     )
+                    Text(
+                        stringResource(R.string.data_preserved),
+                        color = InkFaint,
+                        fontSize = 12.sp
+                    )
                 }
                 Spacer(Modifier.height(12.dp))
                 Box(

@@ -1,4 +1,7 @@
-Pause now speaks English and Czech throughout the app.
-Open Settings in the top-right corner to choose your language.
-Your language choice is kept after restarts and updates.
-English is the default after this update. Your apps and statistics stay intact.
+Set different rules for each monitored app and time of day.
+Each interval can have its own breathing time, reason length and session gap.
+Zero seconds skips straight to the question. You can also block an app completely.
+Replace Breathe in / Breathe out with your own verse or reminder for each app.
+After choosing I changed my mind, Pause will stop you again on the next opening.
+Statistics now include a summary for the current week.
+Updates keep your statistics, written reasons and settings.

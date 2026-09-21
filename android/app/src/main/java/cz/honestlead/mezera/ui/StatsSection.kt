@@ -58,12 +58,28 @@ fun LazyListScope.statsSection(
     val maxCount = bars.firstOrNull()?.value ?: 1
 
     val savedMin = abandoned * 15
+    val startOfWeek = Calendar.getInstance().apply {
+        set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+    val weekEvents = events.filter { it.ts >= startOfWeek }
+    val weekAbandoned = weekEvents.count { it.outcome == "abandoned" }
     item {
         HeroSummary(total = total, saved = fmtSaved(savedMin))
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatTile(abandoned.toString(), stringResource(R.string.changed_mind), Modifier.weight(1f))
             StatTile(top, stringResource(R.string.top_app), Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(20.dp))
+        Text(stringResource(R.string.this_week), color = InkSoft, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatTile(weekEvents.size.toString(), stringResource(R.string.week_pauses), Modifier.weight(1f))
+            StatTile(weekAbandoned.toString(), stringResource(R.string.week_changed_mind), Modifier.weight(1f))
         }
         Spacer(Modifier.height(28.dp))
     }

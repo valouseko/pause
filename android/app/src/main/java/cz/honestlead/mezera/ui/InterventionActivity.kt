@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cz.honestlead.mezera.data.InterventionEvent
 import cz.honestlead.mezera.data.Store
+import cz.honestlead.mezera.service.AppWatchService
 import cz.honestlead.mezera.ui.theme.Bg
 import cz.honestlead.mezera.ui.theme.Blue
 import cz.honestlead.mezera.ui.theme.BlueSoft
@@ -79,6 +80,8 @@ class InterventionActivity : AppCompatActivity() {
         const val EXTRA_LABEL = "label"
         const val EXTRA_COOLDOWN = "cooldownSec"
         const val EXTRA_MIN_CHARS = "reasonMinChars"
+        const val EXTRA_BLOCKED = "blocked"
+        const val EXTRA_PAUSE_TEXT = "pauseText"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +91,8 @@ class InterventionActivity : AppCompatActivity() {
         val label = intent.getStringExtra(EXTRA_LABEL) ?: getString(R.string.application)
         val cooldownSec = intent.getIntExtra(EXTRA_COOLDOWN, 8)
         val minChars = intent.getIntExtra(EXTRA_MIN_CHARS, 20)
+        val blocked = intent.getBooleanExtra(EXTRA_BLOCKED, false)
+        val pauseText = intent.getStringExtra(EXTRA_PAUSE_TEXT).orEmpty()
 
         setContent {
             MezeraTheme {
@@ -95,22 +100,35 @@ class InterventionActivity : AppCompatActivity() {
                     label = label,
                     cooldownSec = cooldownSec,
                     minChars = minChars,
+                    blocked = blocked,
+                    pauseText = pauseText,
                     onContinue = { reason ->
                         Store.get(this).addEvent(
                             InterventionEvent(pkg, label, System.currentTimeMillis(), reason, "continued")
                         )
+                        reportResult(pkg, "continued")
                         finish()
                     },
                     onAbandon = { reason ->
                         Store.get(this).addEvent(
                             InterventionEvent(pkg, label, System.currentTimeMillis(), reason, "abandoned")
                         )
+                        reportResult(pkg, "abandoned")
                         goHome()
                         finish()
                     }
                 )
             }
         }
+    }
+
+    private fun reportResult(pkg: String, outcome: String) {
+        val result = Intent(AppWatchService.ACTION_INTERVENTION_RESULT).apply {
+            setPackage(packageName)
+            putExtra(AppWatchService.EXTRA_RESULT_PACKAGE, pkg)
+            putExtra(AppWatchService.EXTRA_RESULT_OUTCOME, outcome)
+        }
+        sendBroadcast(result)
     }
 
     private fun goHome() {
@@ -132,10 +150,18 @@ private fun InterventionScreen(
     label: String,
     cooldownSec: Int,
     minChars: Int,
+    blocked: Boolean,
+    pauseText: String,
     onContinue: (String) -> Unit,
     onAbandon: (String) -> Unit
 ) {
-    var phase by remember { mutableStateOf(Phase.Breath) }
+    if (blocked) {
+        BackHandler(enabled = true) { onAbandon("") }
+        BlockedContent(label = label, onLeave = { onAbandon("") })
+        return
+    }
+
+    var phase by remember { mutableStateOf(if (cooldownSec <= 0) Phase.Reason else Phase.Breath) }
     var breathLabel by remember { mutableStateOf(R.string.breathe_in) }
     var reason by remember { mutableStateOf("") }
 
@@ -144,7 +170,8 @@ private fun InterventionScreen(
     val cooldownMs = (cooldownSec.coerceAtLeast(1)) * 1000
 
     // Dýchání + odpočet cooldownu
-    androidx.compose.runtime.LaunchedEffect(Unit) {
+    androidx.compose.runtime.LaunchedEffect(cooldownSec) {
+        if (cooldownSec <= 0) return@LaunchedEffect
         val breathJob = launch {
             while (true) {
                 breathLabel = R.string.breathe_in
@@ -178,7 +205,13 @@ private fun InterventionScreen(
             enter = fadeIn(tween(400)),
             exit = fadeOut(tween(400))
         ) {
-            BreathContent(label = label, breathLabel = stringResource(breathLabel), scale = scale.value, progress = progress.value)
+            BreathContent(
+                label = label,
+                breathLabel = pauseText.ifBlank { stringResource(breathLabel) },
+                scale = scale.value,
+                progress = progress.value,
+                customText = pauseText.isNotBlank()
+            )
         }
 
         AnimatedVisibility(
@@ -199,7 +232,49 @@ private fun InterventionScreen(
 }
 
 @Composable
-private fun BreathContent(label: String, breathLabel: String, scale: Float, progress: Float) {
+private fun BlockedContent(label: String, onLeave: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Bg)
+            .padding(28.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Canvas(modifier = Modifier.size(92.dp)) {
+                drawCircle(color = BlueWash)
+                drawCircle(color = BlueSoft, radius = size.minDimension * 0.22f)
+            }
+            androidx.compose.foundation.layout.Spacer(Modifier.height(30.dp))
+            Text(
+                text = stringResource(R.string.blocked_title, label),
+                color = Ink,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            androidx.compose.foundation.layout.Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.blocked_body),
+                color = InkSoft,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center
+            )
+            androidx.compose.foundation.layout.Spacer(Modifier.height(30.dp))
+            Button(
+                onClick = onLeave,
+                shape = RoundedCornerShape(30.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Blue, contentColor = Color.White),
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                Text(stringResource(R.string.back_home), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun BreathContent(label: String, breathLabel: String, scale: Float, progress: Float, customText: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(300.dp)) {
             // Prstenec postupu
@@ -247,8 +322,10 @@ private fun BreathContent(label: String, breathLabel: String, scale: Float, prog
         Text(
             text = breathLabel,
             color = Ink,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.SemiBold
+            fontSize = if (customText) 22.sp else 30.sp,
+            lineHeight = if (customText) 30.sp else 36.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
         )
         androidx.compose.foundation.layout.Spacer(Modifier.height(10.dp))
         Text(

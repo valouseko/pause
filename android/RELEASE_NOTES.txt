@@ -1,4 +1,7 @@
-﻿Pause nyní umí anglicky i česky v celé aplikaci.
-Jazyk přepneš v Nastavení přes ozubené kolečko vpravo nahoře.
-Volba jazyka zůstane i po restartu a dalších aktualizacích.
-Po této aktualizaci je výchozí angličtina. Hlídané appky i statistiky zůstanou.
+Každé hlídané appce můžeš nastavit jiná pravidla pro různé části dne.
+Interval může mít vlastní délku dechu, minimum znaků a klid mezi dotazy.
+Nula sekund přeskočí rovnou na otázku. Appku lze v daném čase i úplně zablokovat.
+Místo textu Nádech / Výdech si můžeš pro každou appku napsat vlastní verš nebo připomínku.
+Po volbě Rozmyslel jsem si to tě Pause při dalším otevření znovu zastaví.
+Ve statistikách nově uvidíš přehled za aktuální týden.
+Aktualizace zachová tvoje statistiky, napsané důvody i nastavení.

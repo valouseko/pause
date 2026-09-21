@@ -23,8 +23,9 @@ jobs:
       - name: Fetch feedback from ntfy and file as issues
         run: |
           set -e
-          # Posledni hodina (cron bezi kazdych 15 min -> prekryv, dedup nize).
-          curl -s --max-time 30 "https://ntfy.sh/${TOPIC}/json?poll=1&since=60m" > msgs.ndjson || true
+          # GitHub scheduled runy mohou mít několikahodinové zpoždění. Vezmeme celé
+          # retenční okno ntfy a duplicity odfiltrujeme podle id níže.
+          curl -s --max-time 30 "https://ntfy.sh/${TOPIC}/json?poll=1&since=12h" > msgs.ndjson || true
           count=0
           while IFS= read -r line; do
             [ -z "$line" ] && continue
