@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pause na PC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --soft: #f4f7fd;
+    --ink: #0f172a;
+    --ink-2: #475569;
+    --line: #e2e8f0;
+    --blue: #2f5bea;
+    --blue-wash: #eaf0ff;
+    --warn: #b45309;
+    --warn-wash: #fff7e8;
+    --ok: #047857;
+    --ok-wash: #ecfdf5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1220;
+      --soft: #151b2c;
+      --ink: #eef2fb;
+      --ink-2: #a3aec6;
+      --line: #263049;
+      --blue: #7f9bff;
+      --blue-wash: #1a2442;
+      --warn: #fbbf24;
+      --warn-wash: #2a2213;
+      --ok: #6ee7b7;
+      --ok-wash: #10261f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 Inter, system-ui, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 56px 16px 96px; }
+  h1 { font-size: 40px; line-height: 1.1; letter-spacing: -0.03em; margin: 0 0 12px; }
+  h2 { font-size: 24px; letter-spacing: -0.02em; margin: 56px 0 14px; }
+  h3 { font-size: 17px; margin: 26px 0 8px; }
+  p, li { color: var(--ink-2); }
+  b, strong { color: var(--ink); }
+  .lead { font-size: 18px; margin: 0 0 28px; }
+  code, kbd {
+    font: 500 14px/1.4 ui-monospace, Consolas, monospace;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1px 6px;
+    color: var(--ink);
+  }
+  .flow { display: grid; gap: 10px; margin: 20px 0; padding: 0; list-style: none; counter-reset: s; }
+  .flow li {
+    counter-increment: s;
+    display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start;
+    background: var(--soft); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+  }
+  .flow li::before {
+    content: counter(s);
+    width: 36px; height: 36px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--blue); color: #fff; font-weight: 700;
+  }
+  .flow li p { margin: 2px 0 0; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 12px; border-bottom: 1px solid var(--line); }
+  th { color: var(--ink); font-weight: 600; background: var(--soft); }
+  td:first-child { color: var(--ink); font-weight: 500; width: 46%; }
+  .note { border-radius: 14px; padding: 14px 18px; margin: 18px 0; border: 1px solid var(--line); }
+  .note p { margin: 4px 0 0; }
+  .note.warn { background: var(--warn-wash); border-color: transparent; }
+  .note.warn strong { color: var(--warn); }
+  .note.ok { background: var(--ok-wash); border-color: transparent; }
+  .note.ok strong { color: var(--ok); }
+  .preview {
+    background: #0e1220; color: #eef2fb; border-radius: 16px;
+    padding: 40px 20px; text-align: center; margin: 18px 0;
+  }
+  .preview .big { font-size: clamp(28px, 6vw, 44px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; }
+  .preview .bar { width: 180px; height: 4px; border-radius: 4px; margin: 22px auto 10px; background: #1a2442; overflow: hidden; }
+  .preview .bar span { display: block; width: 60%; height: 100%; background: #7f9bff; }
+  .preview .count { color: #a3aec6; font-weight: 600; }
+  ul { padding-left: 20px; }
+  li { margin: 4px 0; }
+  .table-wrap { overflow-x: auto; }
+  footer { margin-top: 64px; font-size: 14px; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Pause na PC</h1>
+<p class="lead">Návod k verzi z 29. 9. 2026. Pause tě při <b>každém</b> otevření WhatsAppu zastaví, na 3 sekundy ti velkým napíše <b>„Zvědom si, proč tam jdeš"</b> a pak se zeptá, proč tam jdeš.</p>
+
+<h2>Co se stane, když otevřeš WhatsApp</h2>
+<ol class="flow">
+  <li><div><b>Klikneš na WhatsApp v liště</b> (nebo na něj přepneš přes <kbd>Alt</kbd>+<kbd>Tab</kbd>, nebo klikneš na notifikaci).<p>Nezáleží na tom, jestli už je otevřený na pozadí. Počítá se každý příchod do WhatsAppu z jiného okna.</p></div></li>
+  <li><div><b>Přes okno WhatsAppu naskočí tmavý překryv s textem, na 3 sekundy.</b>
+    <div class="preview" aria-hidden="true"><div class="big">Zvědom si, proč tam jdeš</div><div class="bar"><span></span></div><div class="count">2</div></div>
+    <p>Žádné dýchání, jen text a odpočet. Přeskočit to nejde.</p></div></li>
+  <li><div><b>Otázka „Proč jdeš do WhatsApp?"</b><p>Napiš aspoň 20 znaků. Dokud je nemáš, tlačítko Pokračovat nejde zmáčknout.</p></div></li>
+  <li><div><b>Vybereš jednu ze dvou možností</b><p><b>Pokračovat do WhatsApp</b> = překryv zmizí a můžeš psát. <b>Rozmyslel jsem si to</b> = WhatsApp se schová dolů do lišty. Obojí se zapíše do statistik.</p></div></li>
+</ol>
+
+<h2>Jak se chová v různých situacích</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>Situace</th><th>Co udělá Pause</th></tr>
+  <tr><td>Jsi ve WhatsAppu a píšeš</td><td>Nic. Dokud zůstáváš ve WhatsAppu, znovu se neptá.</td></tr>
+  <tr><td>Odskočíš do jiného okna a vrátíš se</td><td>Zeptá se znovu, i po pár vteřinách. Tak jsi to chtěl.</td></tr>
+  <tr><td>Hned po „Pokračovat" (první 4 s)</td><td>Neptá se. Je to ochrana, aby tě nezasekla ve smyčce, když se okno zrovna vrací do popředí.</td></tr>
+  <tr><td>Dáš „Rozmyslel jsem si to"</td><td>WhatsApp se minimalizuje. Další otevření se zeptá hned, žádná pauza.</td></tr>
+  <tr><td>Zkusíš překryv zavřít (<kbd>Alt</kbd>+<kbd>F4</kbd>, <kbd>Esc</kbd>)</td><td>Nejde to. Ven vedou jen dvě tlačítka.</td></tr>
+  <tr><td>Během překryvu klikneš jinam</td><td>Překryv zůstane nad WhatsAppem, dokud neodpovíš.</td></tr>
+  <tr><td>WhatsApp Web v prohlížeči</td><td>Taky se zeptá. Pause hlídá i záložku, která má v názvu „WhatsApp".</td></tr>
+</table>
+</div>
+
+<div class="note warn">
+  <strong>Tohle Pause nezastaví</strong>
+  <p>Rychlou odpověď přímo v notifikaci Windows (políčko „Odpovědět" v bublině vpravo dole). Tam se WhatsApp vůbec neotevře, takže Pause nemá co hlídat. Když chceš mít jistotu, vypni si ve WhatsAppu v Nastavení → Oznámení náhled zpráv, nebo rovnou notifikace.</p>
+</div>
+
+<h2>Jak poznáš, že Pause běží</h2>
+<ul>
+  <li>Vpravo dole u hodin je <b>ikona Pause</b> (modrobílá koule). Když ji nevidíš, klikni na šipku <kbd>^</kbd>, bývá schovaná tam.</li>
+  <li>Když na ikonu najedeš myší, musí tam být <b>„Pause - hlídá"</b>. Když je tam „Pause - pozastaveno", klikni na ikonu pravým tlačítkem a dej <b>Zapnout hlídání</b>.</li>
+  <li>Pravé tlačítko na ikoně: <b>Otevřít Pause</b> (nastavení a statistiky), <b>Pozastavit / Zapnout hlídání</b>, <b>Konec</b>.</li>
+</ul>
+
+<h3>Spuštění</h3>
+<ul>
+  <li><b>Automaticky</b> po každém přihlášení do Windows. Nic dělat nemusíš.</li>
+  <li><b>Ručně</b> (když jsi dal Konec nebo to spadlo): <kbd>Win</kbd>+<kbd>R</kbd>, napiš <code>shell:startup</code>, Enter, a dvojklikni na <b>Mezera</b>. Pause naběhne potichu do lišty.</li>
+  <li>Nespouštěj ji z terminálu ve VS Code. VS Code tam nastavuje proměnnou, se kterou se Pause hned vypne.</li>
+</ul>
+
+<h2>Nastavení</h2>
+<p>Ikona Pause → <b>Otevřít Pause</b> → záložka <b>Appky</b> → u WhatsAppu <b>Upravit</b>. Teď máš nastaveno:</p>
+<div class="table-wrap">
+<table>
+  <tr><th>Pole</th><th>Hodnota a co dělá</th></tr>
+  <tr><td>Nádech (s)</td><td><b>3</b>. Jak dlouho svítí text, než přijde otázka. 0 = rovnou otázka.</td></tr>
+  <tr><td>Min. znaků důvodu</td><td><b>20</b>. Kolik musíš napsat, než jde zmáčknout Pokračovat.</td></tr>
+  <tr><td>Klid mezi dotazy (s)</td><td><b>0</b> = zeptá se při každém otevření. Když tam dáš třeba 300, po odpovědi máš 5 minut klid i při odskocích.</td></tr>
+  <tr><td>Vlastní text místo nádechu</td><td><b>Zvědom si, proč tam jdeš</b>. Klidně tam dej verš. Když pole vymažeš, vrátí se dýchací koule (nádech a výdech).</td></tr>
+</table>
+</div>
+<p>Po změně dej <b>Uložit</b>, platí to hned. Stejným způsobem můžeš přes <b>+ Přidat appku nebo web</b> hlídat třeba YouTube nebo Instagram. Weby se chytají podle názvu záložky, appky podle názvu programu.</p>
+<p>Na záložce <b>Statistiky</b> vidíš, kolikrát tě Pause zastavila, kolikrát sis to rozmyslel a jaké důvody jsi psal.</p>
+
+<h2>Když to nefunguje</h2>
+<ol>
+  <li>Je u hodin ikona a píše „Pause - hlídá"? Když ne, spusť ji ručně (viz výš) nebo zapni hlídání.</li>
+  <li>V <b>Appky</b> má WhatsApp zapnutý přepínač?</li>
+  <li>Pořád nic: pravé tlačítko na ikoně → <b>Konec</b> a spusť znovu přes <code>shell:startup</code> → Mezera.</li>
+  <li>Pořád nic: napiš Claudovi „Pause na PC nefunguje". Nastavení je v <code>%APPDATA%\mezera-windows\config.json</code> a automatický test celého průchodu jde spustit přes <code>npm run e2e</code> ve složce <code>mezera\windows</code>.</li>
+</ol>
+
+<div class="note ok">
+  <strong>Co je ověřené</strong>
+  <p>Automatický test na skutečné appce projde celý průchod: text, otázka, zamčené Pokračovat, Alt+F4, Pokračovat, nová otázka po návratu, Rozmyslel jsem si to. Že se WhatsApp pozná a že jde minimalizovat, jsem ověřil na tvém PC. Klikání v liště naživo jsem otestovat nemohl, protože byl počítač zamčený. Poprvé si to proto vyzkoušej sám.</p>
+</div>
+
+<h2>Telefon (Android)</h2>
+<p>Verze <b>1.0.16</b> je venku. Update ti nabídne karta v appce nebo notifikace. Co je nového:</p>
+<ul>
+  <li>Dokud nedáš <b>Pokračovat</b>, obrazovka Pause se vrací od začátku pokaždé, když se WhatsApp objeví. Přes nedávné appky, Home, notifikaci ani zabitím Pause to už neobejdeš.</li>
+  <li>Po Pokračovat máš klid podle nastavení (výchozí 5 minut).</li>
+</ul>
+<p><b>Vyzkoušej:</b> otevři WhatsApp, během odpočtu dej nedávné appky, klikni na WhatsApp. Musí naskočit znovu od začátku.</p>
+
+<footer>Pause · Honest Lead · verze pro Windows ze složky mezera\windows</footer>
+</main>
+</body>
+</html>
