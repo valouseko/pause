@@ -63,7 +63,7 @@ function defaultConfig() {
   return {
     version: 1,
     enabled: true,
-    pollMs: 900,
+    pollMs: 500,
     language: 'en',
     autostart: false,
     targets: defaultTargets()
@@ -112,7 +112,8 @@ class Store {
       if (typeof t.enabled !== 'boolean') t.enabled = true;
       if (typeof t.pauseText !== 'string') t.pauseText = '';
     }
-    if (typeof this.config.pollMs !== 'number') this.config.pollMs = 900;
+    // 900 ms byl starý výchozí; 500 ms chytí i rychlé přepnutí a překryv naskočí dřív.
+    if (typeof this.config.pollMs !== 'number' || this.config.pollMs === 900) this.config.pollMs = 500;
     if (typeof this.config.enabled !== 'boolean') this.config.enabled = true;
     if (!['en', 'cs'].includes(this.config.language)) this.config.language = 'en';
   }

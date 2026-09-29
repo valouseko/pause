@@ -18,6 +18,11 @@ let tracker = new SessionTracker();
 let currentIntervention = null; // { target, startedAt, hwnd }
 let isQuitting = false;
 
+// Jen pro automatický test (PAUSE_E2E=1): test podvrhne aktivní okno a čte stav oken.
+const E2E = process.env.PAUSE_E2E === '1';
+if (E2E) global.__pauseE2E = { BrowserWindow, fakeWindow: null };
+if (E2E && process.env.PAUSE_USER_DATA) app.setPath('userData', process.env.PAUSE_USER_DATA);
+
 const ASSETS = path.join(__dirname, '..', 'assets');
 const RENDERER = path.join(__dirname, '..', 'renderer');
 const PRELOAD = path.join(__dirname, 'preload.js');
@@ -184,18 +189,20 @@ function openOverlay(target, win) {
   overlayWin.setAlwaysOnTop(true, 'screen-saver');
   overlayWin.setVisibleOnAllWorkspaces(true);
   overlayWin.loadFile(path.join(RENDERER, 'overlay.html'));
-  const win = overlayWin;
+  const ow = overlayWin;
   const reveal = () => {
-    if (win.isDestroyed() || win.isVisible()) return;
-    win.show();
-    win.focus();
+    if (ow.isDestroyed() || ow.isVisible()) return;
+    ow.show();
+    // Spuštění se "skrytým oknem" (vbs, zástupce) promění PRVNÍ show() procesu na hide.
+    if (!ow.isVisible()) ow.show();
+    ow.focus();
   };
-  win.once('ready-to-show', reveal);
+  ow.once('ready-to-show', reveal);
   // Když se první vykreslení zasekne (GPU), ukážeme okno i tak.
   setTimeout(reveal, 1200);
   // A kdyby ani to nepomohlo, zásah uvolníme, ať hlídání nezůstane viset.
   setTimeout(() => {
-    if (overlayWin === win && !win.isDestroyed() && !win.isVisible()) closeOverlay(null);
+    if (overlayWin === ow && !ow.isDestroyed() && !ow.isVisible()) closeOverlay(null);
   }, 5000);
   // Alt+F4 ani nic jiného overlay nezavře, jde jen Pokračovat / Rozmyslel jsem si to.
   overlayWin.on('close', (e) => {
@@ -244,7 +251,7 @@ async function tick() {
   try {
     const cfg = store.getConfig();
     if (!cfg.enabled || overlayWin) return;
-    const win = await getActiveWindow();
+    const win = E2E ? global.__pauseE2E.fakeWindow : await getActiveWindow();
     const res = tracker.evaluate(win, cfg.targets, Date.now(), isSelfWindow(win));
     if (res.intervene && res.target) {
       openOverlay(res.target, win);
@@ -345,11 +352,28 @@ function registerIpc() {
 }
 
 function applyAutostart(enabled) {
+  if (E2E) return;
   try {
-    app.setLoginItemSettings({
-      openAtLogin: !!enabled,
-      args: ['--hidden']
-    });
+    if (app.isPackaged) {
+      app.setLoginItemSettings({ openAtLogin: !!enabled, args: ['--hidden'] });
+      return;
+    }
+    // Bez instalátoru běží Pause přes electron.exe. Záznam v registru by spustil prázdný
+    // Electron, proto ho uklidíme a spouštíme přes zástupce ve složce Po spuštění.
+    app.setLoginItemSettings({ openAtLogin: false });
+    const lnk = path.join(app.getPath('appData'), 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup', 'Mezera.lnk');
+    if (enabled) {
+      shell.writeShortcutLink(lnk, {
+        target: process.execPath,
+        args: '. --hidden',
+        cwd: app.getAppPath(),
+        description: 'Pause',
+        icon: path.join(ASSETS, 'icon.ico'),
+        iconIndex: 0
+      });
+    } else {
+      require('fs').rmSync(lnk, { force: true });
+    }
   } catch (e) {}
 }
 
@@ -361,7 +385,10 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
-  app.on('second-instance', () => showDashboard());
+  // Druhé spuštění na pozadí (autostart zástupce + registr) nic neotevírá.
+  app.on('second-instance', (_e, argv) => {
+    if (!argv.includes('--hidden')) showDashboard();
+  });
 
   app.whenReady().then(() => {
     const userDataDir = app.getPath('userData');

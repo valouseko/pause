@@ -53,3 +53,11 @@ test('gap > 0 keeps the old session behaviour', () => {
   t.evaluate(other, [yt], 21000, false);
   assert.equal(t.evaluate(ytWin, [yt], 80000, false).intervene, true);
 });
+
+test('main process and renderer scripts parse', () => {
+  const { execFileSync } = require('node:child_process');
+  const path = require('node:path');
+  for (const f of ['src/main.js', 'src/detector.js', 'src/store.js', 'src/preload.js', 'renderer/overlay.js', 'renderer/dashboard.js', 'renderer/i18n.js']) {
+    execFileSync(process.execPath, ['--check', path.join(__dirname, '..', f)]);
+  }
+});
