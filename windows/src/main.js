@@ -2,6 +2,7 @@
 
 const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, shell, screen } = require('electron');
 const path = require('path');
+const { execFile } = require('child_process');
 const { Store } = require('./store');
 const i18n = require('../renderer/i18n');
 const tr = text => i18n.tr(store?.getConfig().language || 'en', text);
@@ -14,7 +15,7 @@ let dashboardWin = null;
 let overlayWin = null;
 let pollTimer = null;
 let tracker = new SessionTracker();
-let currentIntervention = null; // { target, startedAt }
+let currentIntervention = null; // { target, startedAt, hwnd }
 let isQuitting = false;
 
 const ASSETS = path.join(__dirname, '..', 'assets');
@@ -140,12 +141,12 @@ function overlayPlacement(bounds) {
 }
 
 // ------- Overlay (intervence) -------
-function openOverlay(target, bounds) {
+function openOverlay(target, win) {
   if (overlayWin) return; // už jedna běží
   tracker.suspend();
-  currentIntervention = { target, startedAt: Date.now() };
+  currentIntervention = { target, startedAt: Date.now(), hwnd: win && win.id };
 
-  const place = overlayPlacement(bounds);
+  const place = overlayPlacement(win && win.bounds);
   const opts = {
     frame: false,
     alwaysOnTop: true,
@@ -183,25 +184,59 @@ function openOverlay(target, bounds) {
   overlayWin.setAlwaysOnTop(true, 'screen-saver');
   overlayWin.setVisibleOnAllWorkspaces(true);
   overlayWin.loadFile(path.join(RENDERER, 'overlay.html'));
-  overlayWin.once('ready-to-show', () => {
-    overlayWin.show();
-    overlayWin.focus();
+  const win = overlayWin;
+  const reveal = () => {
+    if (win.isDestroyed() || win.isVisible()) return;
+    win.show();
+    win.focus();
+  };
+  win.once('ready-to-show', reveal);
+  // Když se první vykreslení zasekne (GPU), ukážeme okno i tak.
+  setTimeout(reveal, 1200);
+  // A kdyby ani to nepomohlo, zásah uvolníme, ať hlídání nezůstane viset.
+  setTimeout(() => {
+    if (overlayWin === win && !win.isDestroyed() && !win.isVisible()) closeOverlay(null);
+  }, 5000);
+  // Alt+F4 ani nic jiného overlay nezavře, jde jen Pokračovat / Rozmyslel jsem si to.
+  overlayWin.on('close', (e) => {
+    if (!isQuitting) e.preventDefault();
   });
+  // Když renderer spadne, zásah zůstane nevyřízený a při dalším vstupu naskočí znovu.
+  overlayWin.webContents.on('render-process-gone', () => closeOverlay(null));
   overlayWin.on('closed', () => {
     overlayWin = null;
   });
 }
 
-function closeOverlay() {
+// outcome: 'continued' | 'abandoned' | null (nevyřízeno, zásah se vrátí)
+function closeOverlay(outcome) {
   const t = currentIntervention ? currentIntervention.target : null;
   if (overlayWin) {
     const w = overlayWin;
     overlayWin = null;
     try { w.destroy(); } catch (e) {}
   }
-  if (t) tracker.markHandled(t.id, Date.now());
+  if (t && outcome === 'continued') tracker.markContinued(t.id, Date.now());
+  if (t && outcome === 'abandoned') tracker.markAbandoned(t.id);
   currentIntervention = null;
   tracker.resume();
+}
+
+// Po "Rozmyslel jsem si to" schová okno cíle, ať pod overlayem nezůstane otevřené.
+function minimizeWindow(hwnd) {
+  return new Promise((resolve) => {
+    const id = Number(hwnd);
+    if (process.platform !== 'win32' || !Number.isFinite(id) || id <= 0) return resolve(false);
+    const script =
+      "Add-Type -Namespace PauseWin -Name U -MemberDefinition '[DllImport(\"user32.dll\")] public static extern bool ShowWindowAsync(IntPtr h, int c);';" +
+      `[void][PauseWin.U]::ShowWindowAsync([IntPtr]${id}, 6)`;
+    execFile(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', script],
+      { windowsHide: true, timeout: 4000 },
+      (err) => resolve(!err)
+    );
+  });
 }
 
 // ------- Polling smyčka -------
@@ -212,7 +247,7 @@ async function tick() {
     const win = await getActiveWindow();
     const res = tracker.evaluate(win, cfg.targets, Date.now(), isSelfWindow(win));
     if (res.intervene && res.target) {
-      openOverlay(res.target, win && win.bounds);
+      openOverlay(res.target, win);
     }
   } catch (e) {
     // Detekce může občas selhat (zamčená obrazovka apod.), to nevadí.
@@ -283,10 +318,10 @@ function registerIpc() {
         dwellMs: Date.now() - it.startedAt
       });
     }
-    closeOverlay();
+    closeOverlay('continued');
     if (dashboardWin) dashboardWin.webContents.send('stats:changed');
   });
-  ipcMain.on('overlay:abandon', (_e, payload) => {
+  ipcMain.on('overlay:abandon', async (_e, payload) => {
     const it = currentIntervention;
     if (it) {
       store.addEvent({
@@ -297,8 +332,10 @@ function registerIpc() {
         outcome: 'abandoned',
         dwellMs: Date.now() - it.startedAt
       });
+      await minimizeWindow(it.hwnd);
     }
-    closeOverlay();
+    if (currentIntervention !== it) return;
+    closeOverlay('abandoned');
     if (dashboardWin) dashboardWin.webContents.send('stats:changed');
   });
 
@@ -317,6 +354,9 @@ function applyAutostart(enabled) {
 }
 
 // ------- Boot -------
+// Overlay je jednoduchá stránka; bez GPU akcelerace se nezasekne první vykreslení.
+app.disableHardwareAcceleration();
+
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();

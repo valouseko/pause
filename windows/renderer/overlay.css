@@ -106,6 +106,44 @@ body::before {
   color: var(--blue-strong);
 }
 
+/* ---------- Krok 1 (varianta): vlastní text ---------- */
+.phase-text {
+  width: min(1100px, 90vw);
+}
+.pause-text {
+  margin: 0;
+  font-size: clamp(40px, 7.2vw, 104px);
+  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.pause-meter {
+  width: min(420px, 60vw);
+  height: 4px;
+  margin-top: 48px;
+  border-radius: 999px;
+  background: var(--blue-wash);
+  overflow: hidden;
+}
+.pause-meter span {
+  display: block;
+  height: 100%;
+  background: var(--blue-soft);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.pause-count {
+  margin: 18px 0 0;
+  min-height: 1.4em;
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
 /* ---------- Krok 2: proč ---------- */
 .phase-reason {
   width: min(620px, 92vw);

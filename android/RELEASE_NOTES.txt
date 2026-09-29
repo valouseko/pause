@@ -1,7 +1,5 @@
-Každé hlídané appce můžeš nastavit jiná pravidla pro různé části dne.
-Interval může mít vlastní délku dechu, minimum znaků a klid mezi dotazy.
-Nula sekund přeskočí rovnou na otázku. Appku lze v daném čase i úplně zablokovat.
-Místo textu Nádech / Výdech si můžeš pro každou appku napsat vlastní verš nebo připomínku.
-Po volbě Rozmyslel jsem si to tě Pause při dalším otevření znovu zastaví.
-Ve statistikách nově uvidíš přehled za aktuální týden.
+Pause už nejde obejít přes nedávné appky ani zavřením obrazovky Pause.
+Dokud zásah neodklikneš přes Pokračovat, naskočí při každém dalším otevření appky znovu a od začátku.
+Po Pokračovat máš klid podle nastavení (výchozí 5 minut).
+Platí i pro nulový nádech: otázku na důvod musíš vyplnit, jinak se appka neotevře.
 Aktualizace zachová tvoje statistiky, napsané důvody i nastavení.

@@ -57,9 +57,17 @@ function matchTarget(win, targets) {
 // - když poprvé vstoupíš do cíle -> intervence
 // - dokud jsi v něm nebo se vrátíš do sessionGap sekund -> žádná další intervence
 // - když jsi pryč dýl než sessionGap a vrátíš se -> zase intervence
+// - sessionGap 0 = intervence při KAŽDÉM vstupu (klik na lištu, alt+tab), i když appka běží
+// - nevyřízená intervence (ani "Pokračovat", ani "Rozmyslel jsem si to") se vrací,
+//   dokud ji nevyřídíš, takže nejde obejít přepnutím okna
+const GRACE_AFTER_CONTINUE_MS = 4000;
+
 class SessionTracker {
   constructor() {
     this.lastSeen = new Map(); // targetId -> timestamp posledního výskytu v popředí
+    this.pending = new Set(); // targetId se zásahem, který ještě nikdo nevyřídil
+    this.graceUntil = new Map(); // targetId -> do kdy po "Pokračovat" nezasahovat (návrat fokusu)
+    this.activeId = null; // cíl v popředí při minulém vyhodnocení
     this.suspended = false; // když běží overlay, mrazíme rozhodování
   }
 
@@ -75,25 +83,49 @@ class SessionTracker {
   evaluate(win, targets, now, isSelf) {
     if (this.suspended) return { intervene: false, target: null };
     // Vlastní okno (overlay/dashboard) ignorujeme, ať se netriggerujeme sami.
-    if (isSelf) return { intervene: false, target: null };
+    // Návrat z něj do cíle se ale počítá jako nový vstup.
+    if (isSelf) {
+      this.activeId = null;
+      return { intervene: false, target: null };
+    }
 
     const target = matchTarget(win, targets);
-    if (!target) return { intervene: false, target: null };
-
-    const last = this.lastSeen.get(target.id);
-    const gapMs = (target.sessionGapSec || 45) * 1000;
-    let intervene = false;
-    if (last == null || now - last > gapMs) {
-      intervene = true;
+    if (!target) {
+      this.activeId = null;
+      return { intervene: false, target: null };
     }
+
+    const entering = this.activeId !== target.id;
+    this.activeId = target.id;
+    const last = this.lastSeen.get(target.id);
+    const gapMs = Math.max(0, Number(target.sessionGapSec ?? 45)) * 1000;
+
+    let intervene;
+    if (this.pending.has(target.id)) intervene = true;
+    else if (now < (this.graceUntil.get(target.id) || 0)) intervene = false;
+    else if (gapMs === 0) intervene = entering || last == null;
+    else intervene = last == null || now - last > gapMs;
+
     // Osvěžíme čas, dokud jsme v cíli (i po intervenci), aby se neopakovala.
     this.lastSeen.set(target.id, now);
+    if (intervene) this.pending.add(target.id);
     return { intervene, target };
   }
 
-  // Po dokončení intervence označíme sezení jako aktivní ke "now".
-  markHandled(targetId, now) {
+  // "Pokračovat": sezení je platné od teď, krátká ochrana, než se fokus vrátí do cíle.
+  markContinued(targetId, now) {
+    this.pending.delete(targetId);
     this.lastSeen.set(targetId, now);
+    this.graceUntil.set(targetId, now + GRACE_AFTER_CONTINUE_MS);
+    this.activeId = targetId;
+  }
+
+  // "Rozmyslel jsem si to": žádný cooldown, další vstup do cíle zastaví znovu.
+  markAbandoned(targetId) {
+    this.pending.delete(targetId);
+    this.lastSeen.delete(targetId);
+    this.graceUntil.delete(targetId);
+    this.activeId = null;
   }
 }
 

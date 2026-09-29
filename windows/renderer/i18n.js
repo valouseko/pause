@@ -82,7 +82,13 @@
   "Napiš aspoň {count} znaků, popravdě...": "Write at least {count} characters, honestly...",
   "Dej si vteřinu, než otevřeš {name}.": "Take a moment before opening {name}.",
   "Proč jdeš do {name}?": "Why are you opening {name}?",
-  "Pokračovat do {name}": "Continue to {name}"
+  "Pokračovat do {name}": "Continue to {name}",
+  "text {seconds}s": "text {seconds}s",
+  "při každém otevření": "every time you open it",
+  "0 = zeptá se při každém otevření": "0 = ask every time you open it",
+  "Vlastní text místo nádechu": "Custom text instead of breathing",
+  "velkým přes obrazovku, prázdné = dýchání": "shown large on screen, empty = breathing",
+  "např. Zvědom si, proč tam jdeš": "e.g. Notice why you are going there"
 };
   function tr(language, text, values = {}) {
     const translated = language === 'cs' ? text : (english[text] || text);

@@ -110,6 +110,7 @@ class Store {
       if (!Array.isArray(t.match.process)) t.match.process = [];
       if (!Array.isArray(t.match.title)) t.match.title = [];
       if (typeof t.enabled !== 'boolean') t.enabled = true;
+      if (typeof t.pauseText !== 'string') t.pauseText = '';
     }
     if (typeof this.config.pollMs !== 'number') this.config.pollMs = 900;
     if (typeof this.config.enabled !== 'boolean') this.config.enabled = true;

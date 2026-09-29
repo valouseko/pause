@@ -10,7 +10,7 @@
   <body>
     <div class="overlay">
       <!-- Krok 1: nádech -->
-      <section class="phase phase-breath is-active" id="phaseBreath">
+      <section class="phase phase-breath" id="phaseBreath">
         <div class="orbit">
           <svg class="ring" viewBox="0 0 320 320" aria-hidden="true">
             <circle class="ring-track" cx="160" cy="160" r="146" />
@@ -22,6 +22,13 @@
         <p class="breath-sub">
           Dej si vteřinu, než otevřeš <b id="appNameBreath">appku</b>.
         </p>
+      </section>
+
+      <!-- Krok 1 (varianta): vlastní text přes celou obrazovku, bez dýchání -->
+      <section class="phase phase-text" id="phaseText">
+        <p class="pause-text" id="pauseText"></p>
+        <div class="pause-meter" aria-hidden="true"><span id="pauseMeter"></span></div>
+        <p class="pause-count" id="pauseCount"></p>
       </section>
 
       <!-- Krok 2: proč -->

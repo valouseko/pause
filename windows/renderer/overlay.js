@@ -7,6 +7,7 @@ const el = (id) => document.getElementById(id);
 const phaseBreath = el('phaseBreath');
 const phaseReason = el('phaseReason');
 const phaseDone = el('phaseDone');
+const phaseText = el('phaseText');
 const orb = el('orb');
 const ring = document.querySelector('.ring-progress');
 const breathLabel = el('breathLabel');
@@ -24,7 +25,7 @@ let minChars = 20;
 let breathTimer = null;
 
 function setPhase(node) {
-  [phaseBreath, phaseReason, phaseDone].forEach((p) => p.classList.remove('is-active'));
+  [phaseBreath, phaseText, phaseReason, phaseDone].forEach((p) => p.classList.remove('is-active'));
   node.classList.add('is-active');
 }
 
@@ -67,6 +68,31 @@ function runBreath(durationMs, onDone) {
     breathTimer = setTimeout(step, p.dur);
   }
   step();
+}
+
+// ---------- Vlastní text místo dýchání ----------
+function runPauseText(text, durationMs, onDone) {
+  el('pauseText').textContent = text;
+  const meter = el('pauseMeter');
+  const count = el('pauseCount');
+  setPhase(phaseText);
+  meter.style.transition = 'none';
+  meter.style.transform = 'scaleX(0)';
+  void meter.getBoundingClientRect();
+  meter.style.transition = `transform ${durationMs}ms linear`;
+  meter.style.transform = 'scaleX(1)';
+
+  const endsAt = Date.now() + durationMs;
+  function tick() {
+    const left = endsAt - Date.now();
+    if (left <= 0) {
+      onDone();
+      return;
+    }
+    count.textContent = String(Math.ceil(left / 1000));
+    breathTimer = setTimeout(tick, Math.min(250, left));
+  }
+  tick();
 }
 
 // ---------- Krok proč ----------
@@ -131,8 +157,15 @@ async function boot() {
     if (e.key === 'Escape') e.preventDefault();
   });
 
-  setPhase(phaseBreath);
-  runBreath(cooldownSec * 1000, showReason);
+  const pauseText = String(target?.pauseText || '').trim();
+  if (cooldownSec <= 0) {
+    showReason();
+  } else if (pauseText) {
+    runPauseText(pauseText, cooldownSec * 1000, showReason);
+  } else {
+    setPhase(phaseBreath);
+    runBreath(cooldownSec * 1000, showReason);
+  }
 }
 
 boot();

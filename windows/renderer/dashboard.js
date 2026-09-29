@@ -101,8 +101,11 @@ function setupAutostart() {
 // ---------- seznam cílů ----------
 function targetSubline(t) {
   const parts = [];
-  parts.push(tr("nádech {seconds}s", { seconds: t.cooldownSec }));
+  parts.push(t.pauseText
+    ? tr("text {seconds}s", { seconds: t.cooldownSec })
+    : tr("nádech {seconds}s", { seconds: t.cooldownSec }));
   parts.push(tr("důvod min. {count} znaků", { count: t.reasonMinChars }));
+  if (t.sessionGapSec === 0) parts.push(tr("při každém otevření"));
   const m = [];
   if (t.match.title.length) m.push(tr("web: {names}", { names: t.match.title.join(', ') }));
   if (t.match.process.length) m.push(tr("appka: {names}", { names: t.match.process.join(', ') }));
@@ -123,6 +126,7 @@ function buildEditor(t, container) {
   const coolI = h('input', { type: 'number', min: '0', max: '120', value: t.cooldownSec });
   const minI = h('input', { type: 'number', min: '0', max: '200', value: t.reasonMinChars });
   const gapI = h('input', { type: 'number', min: '0', max: '600', value: t.sessionGapSec });
+  const textI = h('input', { type: 'text', maxlength: '240', value: t.pauseText || '', placeholder: tr("např. Zvědom si, proč tam jdeš") });
 
   const grid = h('div', { class: 'target-edit' }, [
     row(tr("Název"), '', nameI),
@@ -130,7 +134,8 @@ function buildEditor(t, container) {
     row(tr("Web podle titulku"), tr("např. youtube, instagram"), titleI),
     row(tr("Appka podle procesu"), tr("např. whatsapp, discord"), procI),
     row(tr("Min. znaků důvodu"), '', minI),
-    row(tr("Klid mezi dotazy (s)"), tr("nezeptá se znovu, když se vrátíš do"), gapI)
+    row(tr("Klid mezi dotazy (s)"), tr("0 = zeptá se při každém otevření"), gapI),
+    row(tr("Vlastní text místo nádechu"), tr("velkým přes obrazovku, prázdné = dýchání"), textI)
   ]);
 
   const save = h('button', { class: 'btn-fill', text: tr("Uložit") });
@@ -142,6 +147,7 @@ function buildEditor(t, container) {
     t.cooldownSec = Math.max(0, parseInt(coolI.value, 10) || 0);
     t.reasonMinChars = Math.max(0, parseInt(minI.value, 10) || 0);
     t.sessionGapSec = Math.max(0, parseInt(gapI.value, 10) || 0);
+    t.pauseText = textI.value.trim().slice(0, 240);
     await persist();
     renderTargets();
   });
@@ -262,7 +268,8 @@ async function openAddPanel() {
       match: { process: parseCsv(procI.value), title: parseCsv(titleI.value) },
       cooldownSec: Math.max(0, parseInt(coolI.value, 10) || 0),
       reasonMinChars: Math.max(0, parseInt(minI.value, 10) || 0),
-      sessionGapSec: 45
+      sessionGapSec: 45,
+      pauseText: ''
     });
     await persist();
     addPanel.hidden = true;

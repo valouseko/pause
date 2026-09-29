@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cz.honestlead.mezera.data.InterventionEvent
 import cz.honestlead.mezera.data.Store
-import cz.honestlead.mezera.service.AppWatchService
+import cz.honestlead.mezera.service.InterventionGate
 import cz.honestlead.mezera.ui.theme.Bg
 import cz.honestlead.mezera.ui.theme.Blue
 import cz.honestlead.mezera.ui.theme.BlueSoft
@@ -106,14 +106,14 @@ class InterventionActivity : AppCompatActivity() {
                         Store.get(this).addEvent(
                             InterventionEvent(pkg, label, System.currentTimeMillis(), reason, "continued")
                         )
-                        reportResult(pkg, "continued")
+                        InterventionGate.continued(pkg, System.currentTimeMillis())
                         finish()
                     },
                     onAbandon = { reason ->
                         Store.get(this).addEvent(
                             InterventionEvent(pkg, label, System.currentTimeMillis(), reason, "abandoned")
                         )
-                        reportResult(pkg, "abandoned")
+                        InterventionGate.abandoned(pkg)
                         goHome()
                         finish()
                     }
@@ -122,13 +122,18 @@ class InterventionActivity : AppCompatActivity() {
         }
     }
 
-    private fun reportResult(pkg: String, outcome: String) {
-        val result = Intent(AppWatchService.ACTION_INTERVENTION_RESULT).apply {
-            setPackage(packageName)
-            putExtra(AppWatchService.EXTRA_RESULT_PACKAGE, pkg)
-            putExtra(AppWatchService.EXTRA_RESULT_OUTCOME, outcome)
-        }
-        sendBroadcast(result)
+    // Dokud je zásah vidět, hlídač ho nespouští znovu. Jakmile zmizí (nedávné appky,
+    // Home, notifikace, zhasnutí), nevyřízený zásah při dalším vstupu naskočí od začátku.
+    override fun onStart() {
+        super.onStart()
+        InterventionGate.setShowing(true)
+    }
+
+    override fun onStop() {
+        InterventionGate.setShowing(false)
+        super.onStop()
+        // Obrazovka bez odpovědi se nedá "odložit" na později, příště začne znovu.
+        if (!isChangingConfigurations) finish()
     }
 
     private fun goHome() {
