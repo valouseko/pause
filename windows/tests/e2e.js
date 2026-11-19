@@ -139,6 +139,28 @@ async function run() {
     assert.ok(st && st.visible, 'Po rozmyšlení vznikl klid a WhatsApp šel otevřít bez dotazu');
     step('po rozmyšlení žádný klid: další otevření se zeptá hned');
 
+    // Malé okno WhatsAppu u pravého dolního okraje: dřív se ořízla tlačítka a z překryvu nešlo ven.
+    await sleep(3200);
+    await inOverlay("document.getElementById('abandonBtn').click(); true");
+    await sleep(300);
+    await setWindow(OTHER);
+    await sleep(2600);
+    await setWindow({ ...WA, bounds: { x: 2300, y: 1300, width: 380, height: 420 } });
+    await sleep(5200);
+    st = await overlayState();
+    assert.ok(st && st.visible && st.phase === 'phaseReason', 'Malé okno: překryv/otázka chybí ' + JSON.stringify(st));
+    const fit = await inOverlay(`(() => { const r = id => document.getElementById(id).getBoundingClientRect();
+      const ok = b => b.width > 0 && b.left >= 0 && b.top >= 0 && b.right <= innerWidth && b.bottom <= innerHeight;
+      return { cont: ok(r('continueBtn')), ab: ok(r('abandonBtn')), field: ok(r('reasonInput')), w: innerWidth, h: innerHeight }; })()`);
+    assert.ok(fit.cont && fit.ab && fit.field, 'Malé okno: tlačítka nejsou celá vidět ' + JSON.stringify(fit) + ' ' + JSON.stringify(st.bounds));
+    await shot('3-small-window.png');
+    await inOverlay("document.getElementById('abandonBtn').click(); true");
+    await sleep(300);
+    await setWindow(OTHER);
+    await sleep(2600);
+    assert.equal(await overlayState(), null, 'Malé okno: Rozmyslel jsem si to nezavřelo překryv');
+    step('malé okno u okraje: překryv celý na obrazovce ' + JSON.stringify(st.bounds) + ', tlačítka vidět a fungují');
+
     console.log('\nE2E OK');
   } finally {
     try { if (ws) ws.close(); } catch (e) {}

@@ -61,3 +61,10 @@ Když spouštíš z prostředí, které nastavuje `ELECTRON_RUN_AS_NODE=1` (tře
 terminál ve VS Code), Electron se chová jako čisté Node a spadne na `app is undefined`.
 Před spuštěním proměnnou zruš: v PowerShellu `Remove-Item Env:ELECTRON_RUN_AS_NODE`.
 Mimo takové prostředí (normální spuštění) se tohle neděje.
+
+
+## Propojení s Minutkou (30.9.2026)
+U každé appky: **Pauza před vstupem** (nádech + otázka) a **Měřit v Minutce** (čas jde do Ondrova kalendáře).
+Jde mít jen měření bez pauzy (např. VS Code). `src/minutka.js` hlásí vstup / čas v popředí / zavření appky
+lokální Minutce (`config.minutkaUrl`, jen 127.0.0.1/localhost, výchozí :8790). Když Minutka neběží, Pause
+funguje dál sama. Testy `tests/minutka.test.js`.

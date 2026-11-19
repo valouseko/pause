@@ -557,3 +557,6 @@ body {
     grid-template-columns: 90px 1fr 40px;
   }
 }
+
+/* checkbox v nastaveni appky (pauza / mereni v Minutce) */
+.fld input.chk{width:20px;height:20px;padding:0;margin:4px 0;accent-color:#5b6cff;cursor:pointer}

@@ -1,13 +1,13 @@
 {
   "name": "mezera-windows",
   "version": "0.1.0",
-  "description": "Mezera - vteřina na rozmyšlenou, než skočíš do rozptylující appky (Windows).",
+  "description": "Mezera - vteĹ™ina na rozmyĹˇlenou, neĹľ skoÄŤĂ­Ĺˇ do rozptylujĂ­cĂ­ appky (Windows).",
   "author": "Honest Lead",
   "license": "MIT",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "test": "node --test tests/detector.test.js tests/language.test.js",
+    "test": "node --test tests/detector.test.js tests/language.test.js tests/minutka.test.js tests/placement.test.js",
     "e2e": "node tests/e2e.js",
     "dist": "electron-builder --win --x64"
   },

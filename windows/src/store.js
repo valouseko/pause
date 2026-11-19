@@ -111,10 +111,16 @@ class Store {
       if (!Array.isArray(t.match.title)) t.match.title = [];
       if (typeof t.enabled !== 'boolean') t.enabled = true;
       if (typeof t.pauseText !== 'string') t.pauseText = '';
+      if (typeof t.pause !== 'boolean') t.pause = true; // zásah (nádech + otázka) před vstupem
+      if (typeof t.track !== 'boolean') t.track = false; // měřit čas v Minutce (kalendář)
     }
     // 900 ms byl starý výchozí; 500 ms chytí i rychlé přepnutí a překryv naskočí dřív.
     if (typeof this.config.pollMs !== 'number' || this.config.pollMs === 900) this.config.pollMs = 500;
     if (typeof this.config.enabled !== 'boolean') this.config.enabled = true;
+    if (typeof this.config.minutkaEnabled !== 'boolean') this.config.minutkaEnabled = true;
+    if (typeof this.config.minutkaUrl !== 'string' || !/^http:\/\/(127\.0\.0\.1|localhost):\d+\/?$/.test(this.config.minutkaUrl)) {
+      this.config.minutkaUrl = 'http://127.0.0.1:8790'; // jen lokální Minutka, nic ven
+    }
     if (!['en', 'cs'].includes(this.config.language)) this.config.language = 'en';
   }
 

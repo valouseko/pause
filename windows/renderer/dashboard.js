@@ -98,14 +98,25 @@ function setupAutostart() {
   });
 }
 
+function checkbox(checked) {
+  const i = h('input', { type: 'checkbox', class: 'chk' });
+  i.checked = checked;
+  return i;
+}
+
 // ---------- seznam cílů ----------
 function targetSubline(t) {
   const parts = [];
-  parts.push(t.pauseText
+  if (t.track) parts.push(tr("⏱ měří se v Minutce"));
+  if (t.pause === false) {
+    parts.push(tr("bez pauzy"));
+  } else parts.push(t.pauseText
     ? tr("text {seconds}s", { seconds: t.cooldownSec })
     : tr("nádech {seconds}s", { seconds: t.cooldownSec }));
-  parts.push(tr("důvod min. {count} znaků", { count: t.reasonMinChars }));
-  if (t.sessionGapSec === 0) parts.push(tr("při každém otevření"));
+  if (t.pause !== false) {
+    parts.push(tr("důvod min. {count} znaků", { count: t.reasonMinChars }));
+    if (t.sessionGapSec === 0) parts.push(tr("při každém otevření"));
+  }
   const m = [];
   if (t.match.title.length) m.push(tr("web: {names}", { names: t.match.title.join(', ') }));
   if (t.match.process.length) m.push(tr("appka: {names}", { names: t.match.process.join(', ') }));
@@ -127,8 +138,12 @@ function buildEditor(t, container) {
   const minI = h('input', { type: 'number', min: '0', max: '200', value: t.reasonMinChars });
   const gapI = h('input', { type: 'number', min: '0', max: '600', value: t.sessionGapSec });
   const textI = h('input', { type: 'text', maxlength: '240', value: t.pauseText || '', placeholder: tr("např. Zvědom si, proč tam jdeš") });
+  const pauseI = checkbox(t.pause !== false);
+  const trackI = checkbox(!!t.track);
 
   const grid = h('div', { class: 'target-edit' }, [
+    row(tr("Pauza před vstupem"), tr("nádech + otázka proč"), pauseI),
+    row(tr("Měřit v Minutce"), tr("čas se zapíše do kalendáře jako přerušení"), trackI),
     row(tr("Název"), '', nameI),
     row(tr("Nádech (s)"), tr("kolik vteřin dýchat"), coolI),
     row(tr("Web podle titulku"), tr("např. youtube, instagram"), titleI),
@@ -148,6 +163,8 @@ function buildEditor(t, container) {
     t.reasonMinChars = Math.max(0, parseInt(minI.value, 10) || 0);
     t.sessionGapSec = Math.max(0, parseInt(gapI.value, 10) || 0);
     t.pauseText = textI.value.trim().slice(0, 240);
+    t.pause = pauseI.checked;
+    t.track = trackI.checked;
     await persist();
     renderTargets();
   });
@@ -233,6 +250,8 @@ async function openAddPanel() {
   const procI = h('input', { type: 'text', placeholder: 'tiktok' });
   const coolI = h('input', { type: 'number', min: '0', max: '120', value: '10' });
   const minI = h('input', { type: 'number', min: '0', max: '200', value: '20' });
+  const pauseI = checkbox(true);
+  const trackI = checkbox(false);
 
   const fld = (label, hint, input, full) =>
     h('div', { class: 'fld' + (full ? ' full' : '') }, [
@@ -245,7 +264,9 @@ async function openAddPanel() {
     fld(tr("Nádech (s)"), '', coolI),
     fld(tr("Web podle titulku okna"), tr("kus názvu záložky v prohlížeči"), titleI),
     fld(tr("Appka podle procesu"), tr("kus názvu .exe"), procI),
-    fld(tr("Min. znaků důvodu"), '', minI)
+    fld(tr("Min. znaků důvodu"), '', minI),
+    fld(tr("Pauza před vstupem"), tr("nádech + otázka proč"), pauseI),
+    fld(tr("Měřit v Minutce"), tr("čas se zapíše do kalendáře jako přerušení"), trackI)
   ]);
 
   const openAppsBox = h('div', { class: 'open-apps' }, [
@@ -269,7 +290,9 @@ async function openAddPanel() {
       cooldownSec: Math.max(0, parseInt(coolI.value, 10) || 0),
       reasonMinChars: Math.max(0, parseInt(minI.value, 10) || 0),
       sessionGapSec: 45,
-      pauseText: ''
+      pauseText: '',
+      pause: pauseI.checked,
+      track: trackI.checked
     });
     await persist();
     addPanel.hidden = true;

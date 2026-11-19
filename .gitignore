@@ -22,3 +22,6 @@ stats.json
 # Nastroje / cache
 .impeccable/
 .playwright-mcp/
+
+# buildy (APK si stahni z GitHub Releases nebo postav znovu)
+*.apk

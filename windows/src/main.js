@@ -7,6 +7,8 @@ const { Store } = require('./store');
 const i18n = require('../renderer/i18n');
 const tr = text => i18n.tr(store?.getConfig().language || 'en', text);
 const { getActiveWindow, SessionTracker } = require('./detector');
+const { MinutkaLink, post } = require('./minutka');
+const { fitOverlay } = require('./placement');
 
 // ------- Stav aplikace -------
 let store = null;
@@ -17,6 +19,11 @@ let pollTimer = null;
 let tracker = new SessionTracker();
 let currentIntervention = null; // { target, startedAt, hwnd }
 let isQuitting = false;
+// Minutka (časový audit v kalendářové appce): měřené appky hlásí jako přerušení. V E2E testu vypnuto.
+const minutka = new MinutkaLink({
+  send: (p, body) => (E2E ? Promise.resolve(null) : post(store.getConfig().minutkaUrl, p, body)),
+  listOpen: async () => (await import('get-windows')).openWindows()
+});
 
 // Jen pro automatický test (PAUSE_E2E=1): test podvrhne aktivní okno a čte stav oken.
 const E2E = process.env.PAUSE_E2E === '1';
@@ -66,6 +73,9 @@ function buildTrayMenu() {
         if (dashboardWin) dashboardWin.webContents.send('config:changed', store.getConfig());
       }
     },
+    { type: 'separator' },
+    // Nouzový východ, kdyby se překryv zasekl: počítá se jako "Rozmyslel jsem si to" (do appky nepustí).
+    { label: tr("Zavřít zaseknuté okno (= rozmyslel jsem si to)"), enabled: !!overlayWin, click: () => abandonCurrent('') },
     { type: 'separator' },
     { label: tr("Konec"), click: () => { isQuitting = true; app.quit(); } }
   ]);
@@ -134,12 +144,7 @@ function overlayPlacement(bounds) {
         height: Math.round(bounds.height)
       };
       const dip = screen.screenToDipRect(null, rect);
-      return {
-        x: Math.round(dip.x),
-        y: Math.round(dip.y),
-        width: Math.max(200, Math.round(dip.width)),
-        height: Math.max(160, Math.round(dip.height))
-      };
+      return fitOverlay(dip, screen.getDisplayMatching(dip).workArea);
     }
   } catch (e) {}
   return null;
@@ -198,6 +203,7 @@ function openOverlay(target, win) {
     ow.focus();
   };
   ow.once('ready-to-show', reveal);
+  refreshTray();
   // Když se první vykreslení zasekne (GPU), ukážeme okno i tak.
   setTimeout(reveal, 1200);
   // A kdyby ani to nepomohlo, zásah uvolníme, ať hlídání nezůstane viset.
@@ -227,6 +233,7 @@ function closeOverlay(outcome) {
   if (t && outcome === 'abandoned') tracker.markAbandoned(t.id);
   currentIntervention = null;
   tracker.resume();
+  refreshTray();
 }
 
 // Po "Rozmyslel jsem si to" schová okno cíle, ať pod overlayem nezůstane otevřené.
@@ -246,13 +253,38 @@ function minimizeWindow(hwnd) {
   });
 }
 
+// "Rozmyslel jsem si to" (z překryvu nebo nouzově z menu ikonky): zapsat, schovat okno cíle, zavřít.
+async function abandonCurrent(reason) {
+  const it = currentIntervention;
+  if (it) {
+    store.addEvent({
+      targetId: it.target.id,
+      label: it.target.label,
+      reason: String(reason || ''),
+      cooldownSec: it.target.cooldownSec,
+      outcome: 'abandoned',
+      dwellMs: Date.now() - it.startedAt
+    });
+    await minimizeWindow(it.hwnd);
+  }
+  if (currentIntervention !== it) return;
+  closeOverlay('abandoned');
+  if (dashboardWin) dashboardWin.webContents.send('stats:changed');
+}
+
 // ------- Polling smyčka -------
 async function tick() {
   try {
     const cfg = store.getConfig();
-    if (!cfg.enabled || overlayWin) return;
+    const measuring = cfg.minutkaEnabled && cfg.targets.some((t) => t.enabled && t.track);
+    if (!measuring && (!cfg.enabled || overlayWin)) return;
     const win = E2E ? global.__pauseE2E.fakeWindow : await getActiveWindow();
-    const res = tracker.evaluate(win, cfg.targets, Date.now(), isSelfWindow(win));
+    const self = isSelfWindow(win);
+    // Měření běží i při pozastaveném hlídání; vstup se počítá až po vyřízení zásahu.
+    if (measuring) minutka.tick(win, cfg.targets, { isSelf: self, blocked: !!overlayWin }).catch(() => {});
+    if (!cfg.enabled || overlayWin) return;
+    const pauseTargets = cfg.targets.filter((t) => t.pause !== false); // "jen měřit" = bez zásahu
+    const res = tracker.evaluate(win, pauseTargets, Date.now(), self);
     if (res.intervene && res.target) {
       openOverlay(res.target, win);
     }
@@ -328,23 +360,7 @@ function registerIpc() {
     closeOverlay('continued');
     if (dashboardWin) dashboardWin.webContents.send('stats:changed');
   });
-  ipcMain.on('overlay:abandon', async (_e, payload) => {
-    const it = currentIntervention;
-    if (it) {
-      store.addEvent({
-        targetId: it.target.id,
-        label: it.target.label,
-        reason: String(payload && payload.reason ? payload.reason : ''),
-        cooldownSec: it.target.cooldownSec,
-        outcome: 'abandoned',
-        dwellMs: Date.now() - it.startedAt
-      });
-      await minimizeWindow(it.hwnd);
-    }
-    if (currentIntervention !== it) return;
-    closeOverlay('abandoned');
-    if (dashboardWin) dashboardWin.webContents.send('stats:changed');
-  });
+  ipcMain.on('overlay:abandon', (_e, payload) => abandonCurrent(payload && payload.reason));
 
   ipcMain.on('ui:openExternal', (_e, url) => {
     try { shell.openExternal(url); } catch (e) {}

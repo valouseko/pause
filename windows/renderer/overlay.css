@@ -287,3 +287,33 @@ body::before {
   font-weight: 600;
   color: var(--ink);
 }
+
+/* ---------- Malé okno cíle: všechno se vejde, jinak jde scrollovat ----------
+   Dřív pevné rozměry + overflow hidden ořízly v malém okně tlačítka a z překryvu nešlo ven. */
+html,
+body {
+  overflow: auto;
+}
+.overlay {
+  height: auto;
+  min-height: 100vh;
+  padding: clamp(16px, 4vmin, 48px);
+}
+.orbit {
+  width: min(340px, 46vmin);
+  height: min(340px, 46vmin);
+}
+.orb {
+  width: min(190px, 26vmin);
+  height: min(190px, 26vmin);
+}
+.question {
+  font-size: clamp(26px, 5.2vmin, 40px);
+}
+.pause-text {
+  font-size: clamp(30px, 7vmin, 104px);
+}
+@media (max-height: 700px) {
+  .mini-orb { width: 44px; height: 44px; }
+  .question-sub { margin-bottom: 12px; }
+}
